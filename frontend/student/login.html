@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Login | IBU Connect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/auth.css" />
+</head>
+<body data-page="login">
+  <main class="auth-shell">
+    <section class="auth-showcase">
+      <div class="auth-brand">
+        <p class="eyebrow">IBU Connect Platform</p>
+        <h1>Join the campus life.</h1>
+      </div>
+    </section>
+
+    <section class="auth-card">
+      <div class="auth-card-head">
+        <p class="eyebrow">Student Sign In</p>
+        <h2>Welcome back</h2>
+      </div>
+
+      <div class="auth-message" data-login-message hidden></div>
+
+      <form class="auth-form" data-login-form>
+        <label><span>Email</span><input type="email" name="email" required /></label>
+        <label><span>Password</span><input type="password" name="password" required /></label>
+        <button type="submit" class="auth-submit">Sign In as Student</button>
+      </form>
+
+      <div style="margin-top:20px;text-align:center;">
+         <a href="register.html">Don't have an account? Register here.</a>
+      </div>
+
+    </section>
+  </main>
+  <script src="./js/runtime-config.js"></script>
+  <script type="module" src="./js/auth.js"></script>
+</body>
+</html>

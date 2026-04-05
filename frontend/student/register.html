@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Register | IBU Connect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/auth.css" />
+</head>
+<body data-page="register">
+  <main class="auth-shell">
+    <section class="auth-showcase">
+      <div class="auth-brand">
+        <p class="eyebrow">IBU Connect Platform</p>
+        <h1>Join the community and discover amazing events.</h1>
+      </div>
+    </section>
+
+    <section class="auth-card">
+      <div class="auth-card-head">
+        <p class="eyebrow">Student Registration</p>
+        <h2>Create Account</h2>
+      </div>
+
+      <div class="auth-message" data-login-message hidden></div>
+
+      <form class="auth-form" id="registerForm">
+        <label><span>Full Name</span><input type="text" name="name" required /></label>
+        <label><span>Email</span><input type="email" name="email" required /></label>
+        <label><span>Password</span><input type="password" name="password" required /></label>
+        <button type="submit" class="auth-submit">Register as Student</button>
+      </form>
+      
+      <div style="margin-top:20px;text-align:center;">
+         <a href="login.html">Already have an account? Sign In.</a>
+      </div>
+    </section>
+  </main>
+  
+  <script src="./js/runtime-config.js"></script>
+  <script type="module">
+    import { apiRequest } from './js/api.js';
+    const form = document.getElementById('registerForm');
+    const msg = document.querySelector('[data-login-message]');
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await apiRequest('/auth/register/student', {
+          auth: false, method: 'POST', body: {
+            full_name: form.name.value,
+            email: form.email.value,
+            password: form.password.value
+          }
+        });
+        window.location.href = './login.html?reason=registered';
+      } catch (err) {
+        msg.textContent = err.message || 'Registration failed';
+        msg.className = 'auth-message error';
+        msg.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>
