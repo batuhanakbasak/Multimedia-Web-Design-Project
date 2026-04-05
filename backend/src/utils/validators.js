@@ -97,6 +97,16 @@ const updateProfileValidator = [
   }),
 ];
 
+const changePasswordValidator = [
+  body('current_password').isString().notEmpty().withMessage('current_password is required'),
+  body('new_password')
+    .isString()
+    .isLength({ min: 8 })
+    .withMessage('new_password must be at least 8 characters long')
+    .custom((value, { req }) => value !== req.body.current_password)
+    .withMessage('new_password must be different from current_password'),
+];
+
 const eventCreateValidator = [
   body('club_id')
     .optional({ nullable: true })
@@ -259,6 +269,7 @@ module.exports = {
   adminLoginValidator,
   refreshTokenValidator,
   updateProfileValidator,
+  changePasswordValidator,
   eventCreateValidator,
   eventUpdateValidator,
   clubCreateValidator,

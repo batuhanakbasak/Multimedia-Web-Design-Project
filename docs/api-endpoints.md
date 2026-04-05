@@ -212,13 +212,19 @@ All organizer routes require a bearer token from an account with `role = organiz
 |---|---|---|
 | GET | `/api/organizer/dashboard` | Get organizer dashboard summary. |
 | GET | `/api/organizer/events` | List organizer-owned events with filter and pagination support. |
+| GET | `/api/organizer/events/:id` | Get detail of an organizer-owned event. |
 | POST | `/api/organizer/events` | Create an event owned by the organizer. |
 | PUT | `/api/organizer/events/:id` | Update an organizer-owned event. |
 | DELETE | `/api/organizer/events/:id` | Soft-cancel an organizer-owned event. |
 | GET | `/api/organizer/events/:id/participants` | List active participants of an organizer-owned event. |
+| DELETE | `/api/organizer/events/:id/participants/:userId` | Remove a joined participant from an organizer-owned event. |
 | GET | `/api/organizer/profile` | Get organizer profile. |
 | PUT | `/api/organizer/profile` | Update organizer profile. |
+| PUT | `/api/organizer/profile/password` | Change organizer password. |
 | GET | `/api/organizer/clubs` | List organizer club memberships. |
+| GET | `/api/organizer/clubs/:id/members` | List members of a club managed by the organizer. |
+| POST | `/api/organizer/clubs/:id/members` | Add a club member or update member role in a managed club. |
+| DELETE | `/api/organizer/clubs/:id/members/:userId` | Remove a member from a managed club. |
 
 ### Organizer Event Query Params
 
@@ -262,6 +268,29 @@ search, keyword, category, date, status, sort, organizer_id, club_id, page, limi
   "profile_image": "https://example.com/organizer.jpg"
 }
 ```
+
+### Organizer Change Password Body
+
+```json
+{
+  "current_password": "OldPassword123!",
+  "new_password": "NewPassword123!"
+}
+```
+
+### Organizer Save Club Member Body
+
+```json
+{
+  "user_id": 12,
+  "member_role": "manager"
+}
+```
+
+Notes:
+
+- organizer must already be a `manager` of that club
+- backend prevents removing or demoting the last remaining manager
 
 ## Admin Routes
 
