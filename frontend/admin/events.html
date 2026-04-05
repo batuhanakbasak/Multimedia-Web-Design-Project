@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Events</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/admin.css" />
+  </head>
+  <body data-page="events">
+    <div class="sidebar-overlay" data-sidebar-overlay></div>
+    <div class="admin-shell">
+      <aside class="sidebar" id="sidebar-root"></aside>
+
+      <div class="admin-main">
+        <header id="navbar-root"></header>
+
+        <main class="page-content">
+          <section class="page-banner">
+            <div>
+              <p class="eyebrow">Events</p>
+              <h3>Review event quality and status in one list</h3>
+              <p class="section-copy">
+                Filter by category, date, or status, then update or remove any event directly from
+                the admin panel.
+              </p>
+            </div>
+            <button type="button" class="button button-secondary" id="events-refresh">Refresh</button>
+          </section>
+
+          <section class="panel">
+            <form class="toolbar-grid dense" id="events-filters">
+              <label>
+                <span>Search</span>
+                <input type="search" name="search" placeholder="Title or description" />
+              </label>
+              <label>
+                <span>Category</span>
+                <input type="text" name="category" placeholder="Technology, Sports..." />
+              </label>
+              <label>
+                <span>Status</span>
+                <select name="status">
+                  <option value="">All statuses</option>
+                  <option value="active">Active</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </label>
+              <label>
+                <span>Date</span>
+                <input type="date" name="date" />
+              </label>
+              <div class="toolbar-actions">
+                <button type="submit" class="button button-primary">Apply</button>
+                <button type="reset" class="button button-ghost">Reset</button>
+              </div>
+            </form>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Category</th>
+                    <th>Organizer</th>
+                    <th>Club</th>
+                    <th>Date</th>
+                    <th>Joined</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="events-table-body"></tbody>
+              </table>
+            </div>
+
+            <div class="panel-foot">
+              <p id="events-summary">Loading events...</p>
+              <div id="events-pagination" class="pagination-row"></div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast-root" class="toast-root"></div>
+
+    <script src="./js/runtime-config.js"></script>
+    <script type="module" src="./js/events.js"></script>
+  </body>
+</html>

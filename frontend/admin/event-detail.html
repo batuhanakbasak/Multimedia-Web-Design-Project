@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Detail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/admin.css" />
+  </head>
+  <body data-page="event-detail">
+    <div class="sidebar-overlay" data-sidebar-overlay></div>
+    <div class="admin-shell">
+      <aside class="sidebar" id="sidebar-root"></aside>
+
+      <div class="admin-main">
+        <header id="navbar-root"></header>
+
+        <main class="page-content">
+          <nav class="breadcrumb-row">
+            <a href="./events.html" class="text-link">Back to events</a>
+          </nav>
+
+          <section id="event-detail-header"></section>
+          <section class="metrics-row" id="event-metrics"></section>
+
+          <section class="content-grid detail-columns">
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="eyebrow">Snapshot</p>
+                  <h3>Event profile</h3>
+                </div>
+              </div>
+              <div id="event-profile-card"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="eyebrow">Additional info</p>
+                  <h3>Description and media</h3>
+                </div>
+              </div>
+              <div id="event-additional-info"></div>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast-root" class="toast-root"></div>
+
+    <script src="./js/runtime-config.js"></script>
+    <script type="module" src="./js/events.js"></script>
+  </body>
+</html>
