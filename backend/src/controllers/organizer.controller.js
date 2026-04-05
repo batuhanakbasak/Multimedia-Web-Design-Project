@@ -383,6 +383,116 @@ const getClubs = asyncHandler(async (req, res) => {
   });
 });
 
+
+const getClubMembers = asyncHandler(async (req, res) => {
+  const organizerId = req.user.id;
+  const clubId = Number.parseInt(req.params.id, 10);
+
+  await ensureManagedClub({ query }, organizerId, clubId);
+
+  const result = await query(
+    `
+      SELECT
+        u.id,
+        u.full_name,
+        u.email,
+        u.role,
+        u.profile_image,
+        u.is_active,
+        cm.member_role,
+        cm.joined_at
+      FROM club_members cm
+      JOIN users u ON u.id = cm.user_id
+      WHERE cm.club_id = $1
+      ORDER BY u.full_name ASC
+    `,
+    [clubId]
+  );
+
+  return successResponse(res, {
+    message: 'Organizer club members fetched successfully',
+    data: result.rows,
+  });
+});
+
+const addClubMember = asyncHandler(async (req, res) => {
+  const organizerId = req.user.id;
+  const clubId = Number.parseInt(req.params.id, 10);
+  const userId = req.body.user_id;
+  const memberRole = req.body.member_role || 'member';
+
+  await ensureManagedClub({ query }, organizerId, clubId);
+
+  const userCheck = await query(`SELECT id FROM users WHERE id = $1`, [userId]);
+  if (userCheck.rowCount === 0) throw new AppError(404, 'User not found');
+
+  const result = await query(
+    `
+      INSERT INTO club_members (club_id, user_id, member_role)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (club_id, user_id) 
+      DO UPDATE SET member_role = EXCLUDED.member_role
+      RETURNING id, club_id, user_id, member_role, joined_at
+    `,
+    [clubId, userId, memberRole]
+  );
+
+  return successResponse(res, {
+    statusCode: 201,
+    message: 'Organizer club member saved successfully',
+    data: result.rows[0],
+  });
+});
+
+const removeClubMember = asyncHandler(async (req, res) => {
+  const organizerId = req.user.id;
+  const clubId = Number.parseInt(req.params.id, 10);
+  const userId = Number.parseInt(req.params.userId, 10);
+
+  await ensureManagedClub({ query }, organizerId, clubId);
+
+  const result = await query(
+    `
+      DELETE FROM club_members
+      WHERE club_id = $1 AND user_id = $2
+      RETURNING id, club_id, user_id
+    `,
+    [clubId, userId]
+  );
+  if (result.rowCount === 0) throw new AppError(404, 'Club member not found');
+
+  return successResponse(res, {
+    message: 'Organizer club member removed successfully',
+    data: result.rows[0],
+  });
+});
+
+
+const removeEventParticipant = asyncHandler(async (req, res) => {
+  const organizerId = req.user.id;
+  const eventId = Number.parseInt(req.params.id, 10);
+  const userId = Number.parseInt(req.params.userId, 10);
+
+  await loadOwnedEventOrFail({ query }, organizerId, eventId);
+
+  const result = await query(
+    `
+      UPDATE event_participants
+      SET status = 'cancelled'
+      WHERE event_id = $1 AND user_id = $2
+      RETURNING id, event_id, user_id, status
+    `,
+    [eventId, userId]
+  );
+
+  if (result.rowCount === 0) throw new AppError(404, 'Participant not found');
+
+  return successResponse(res, {
+    message: 'Event participant removed successfully',
+    data: result.rows[0]
+  });
+});
+
 module.exports = {
   getDashboard,
   listEvents,
@@ -393,4 +503,8 @@ module.exports = {
   getProfile,
   updateProfile,
   getClubs,
+  getClubMembers,
+  addClubMember,
+  removeClubMember,
+  removeEventParticipant,
 };

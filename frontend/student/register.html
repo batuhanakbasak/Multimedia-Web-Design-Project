@@ -12,52 +12,89 @@
     <section class="auth-showcase">
       <div class="auth-brand">
         <p class="eyebrow">IBU Connect Platform</p>
-        <h1>Join the community and discover amazing events.</h1>
+        <h1>Start your journey with us today.</h1>
+        <p>Join thousands of students and never miss an important campus event again.</p>
+      </div>
+
+      <div class="auth-highlights">
+        <article>
+          <strong>Personalized Feed</strong>
+          <span>See events that match your interests and clubs.</span>
+        </article>
       </div>
     </section>
 
     <section class="auth-card">
       <div class="auth-card-head">
-        <p class="eyebrow">Student Registration</p>
+        <p class="eyebrow">New Student</p>
         <h2>Create Account</h2>
+        <p>Fill in your details to get started.</p>
       </div>
 
-      <div class="auth-message" data-login-message hidden></div>
+      <div id="registerMessage" class="auth-message" hidden></div>
 
       <form class="auth-form" id="registerForm">
-        <label><span>Full Name</span><input type="text" name="name" required /></label>
-        <label><span>Email</span><input type="email" name="email" required /></label>
-        <label><span>Password</span><input type="password" name="password" required /></label>
-        <button type="submit" class="auth-submit">Register as Student</button>
+        <label>
+          <span>Full Name</span>
+          <input type="text" name="full_name" placeholder="Enter your full name" required />
+        </label>
+        <label>
+          <span>Email Address</span>
+          <input type="email" name="email" placeholder="e.g. name@student.ibu.edu.ba" required />
+        </label>
+        <label>
+          <span>Create Password</span>
+          <input type="password" name="password" placeholder="At least 8 characters" required minlength="8" />
+        </label>
+        <button type="submit" class="auth-submit" id="submitBtn">Register as Student</button>
       </form>
-      
-      <div style="margin-top:20px;text-align:center;">
-         <a href="login.html">Already have an account? Sign In.</a>
+
+      <div class="auth-footnote">
+        <p>Already have an account? <a href="login.html">Sign In here</a></p>
       </div>
     </section>
   </main>
-  
+
   <script src="./js/runtime-config.js"></script>
   <script type="module">
     import { apiRequest } from './js/api.js';
+
     const form = document.getElementById('registerForm');
-    const msg = document.querySelector('[data-login-message]');
-    
+    const msg = document.getElementById('registerMessage');
+    const btn = document.getElementById('submitBtn');
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      btn.disabled = true;
+      btn.textContent = 'Creating account...';
+      msg.hidden = true;
+
       try {
         await apiRequest('/auth/register/student', {
-          auth: false, method: 'POST', body: {
-            full_name: form.name.value,
+          auth: false,
+          method: 'POST',
+          body: {
+            full_name: form.full_name.value,
             email: form.email.value,
             password: form.password.value
           }
         });
-        window.location.href = './login.html?reason=registered';
+
+        msg.textContent = 'Account created! Redirecting to login...';
+        msg.className = 'auth-message success';
+        msg.hidden = false;
+
+        setTimeout(() => {
+          window.location.href = './login.html?reason=registered';
+        }, 2000);
+
       } catch (err) {
-        msg.textContent = err.message || 'Registration failed';
+        msg.textContent = err.message || 'Registration failed. Please try again.';
         msg.className = 'auth-message error';
         msg.hidden = false;
+        btn.disabled = false;
+        btn.textContent = 'Register as Student';
       }
     });
   </script>

@@ -49,8 +49,8 @@ const initializeLoginPage = () => {
       });
 
       saveStudentSession({
-        token: response.data?.token || response.token,
-        student: response.data?.student || response.user,
+        token: response.data?.access_token || response.data?.token || response.access_token || response.token,
+        student: response.data?.user || response.data?.student || response.user || {email: email, full_name: 'Student'},
       });
 
       window.location.href = './dashboard.html';

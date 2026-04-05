@@ -59,8 +59,8 @@ const initializeLoginPage = () => {
       });
 
       saveOrganizerSession({
-        token: response.data?.token || response.token,
-        organizer: response.data?.organizer || response.user || {email: email, full_name: 'Organizer'},
+        token: response.data?.access_token || response.data?.token || response.access_token || response.token,
+        organizer: response.data?.user || response.data?.organizer || response.user || {email: email, full_name: 'Organizer'},
       });
       window.location.href = './dashboard.html';
     } catch (error) {

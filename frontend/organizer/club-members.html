@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Club Members</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../admin/css/admin.css" />
+</head>
+<body data-page="club-members">
+  <div class="admin-shell">
+    <aside class="sidebar" id="sidebar-root"></aside>
+    <div class="admin-main">
+      <header id="navbar-root"></header>
+      <main class="page-content">
+        <section class="page-banner">
+          <div>
+            <p class="eyebrow" id="clubSub">Club Roster</p>
+            <h3 id="clubTitle">Loading Club...</h3>
+            <p class="section-copy">Manage members and roles for this club.</p>
+          </div>
+          <div style="margin-top: 1rem;">
+             <a href="clubs.html" class="button" style="background:var(--text-main);color:white;text-decoration:none;padding:10px 20px;border-radius:12px;">Back to Clubs</a>
+          </div>
+        </section>
+
+        <!-- ADD MEMBER FORM -->
+        <section class="content-grid" style="margin-bottom: 2rem;">
+           <article class="panel" style="grid-column: 1 / -1; max-width:600px;">
+               <h3 style="font-family:'Space Grotesk'; margin:0 0 1rem 0;">Add / Promote Member</h3>
+               <form id="addMemberForm" style="display:flex; gap:1rem; align-items:flex-end;">
+                   <div style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem; color: var(--text-soft); font-weight: 600;">
+                       <label>User ID</label>
+                       <input type="number" name="user_id" placeholder="Enter User ID" required style="padding: 0.8rem; border: 1px solid var(--border); border-radius: 12px; font-family: inherit;">
+                   </div>
+                   <div style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem; color: var(--text-soft); font-weight: 600;">
+                       <label>Role</label>
+                       <select name="member_role" required style="padding: 0.8rem; border: 1px solid var(--border); border-radius: 12px; font-family: inherit;">
+                           <option value="member">Member</option>
+                           <option value="manager">Manager</option>
+                       </select>
+                   </div>
+                   <button type="submit" class="button" style="background:var(--text-main);color:white;padding:0.8rem 1.5rem;border-radius:12px;">Add</button>
+               </form>
+               <div id="addResult" style="margin-top: 0.5rem; font-weight: 600;"></div>
+           </article>
+        </section>
+
+        <!-- MEMBERS TABLE -->
+        <section class="content-grid">
+          <article class="panel" style="grid-column: 1 / -1;">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Roster</p>
+                <h3>Active Members</h3>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>User / Email</th>
+                    <th>Status</th>
+                    <th>Joined At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="members-body">
+                   <tr><td colspan="4"><div class="empty-inline">Loading members...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="./js/runtime-config.js"></script>
+  <script type="module">
+    import { requireAuth, renderSidebar, renderNavbar, escapeHtml, formatDate } from './js/app.js';
+    import { apiRequest } from './js/api.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      requireAuth();
+      renderSidebar('clubs');
+      renderNavbar('Manage Members');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const clubId = urlParams.get('id');
+      const clubName = urlParams.get('name') || 'Club Members';
+
+      if (!clubId) {
+          document.getElementById('clubTitle').textContent = "Invalid Club";
+          document.getElementById('members-body').innerHTML = `<tr><td colspan="4"><div class="empty-inline">No club ID provided.</div></td></tr>`;
+          return;
+      }
+      document.getElementById('clubTitle').textContent = escapeHtml(clubName);
+
+      const loadMembers = async () => {
+          try {
+            const response = await apiRequest(`/organizer/clubs/${clubId}/members`);
+            const members = response.data || [];
+            const tbody = document.getElementById('members-body');
+            
+            if (!members || members.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4"><div class="empty-inline">No members found.</div></td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = members.map(m => `
+              <tr>
+                <td><strong>${escapeHtml(m.full_name)}</strong><br><span style="color:var(--text-soft);font-size:0.85rem;">${escapeHtml(m.email)} (ID: ${m.id})</span></td>
+                <td><span class="badge" style="background:${m.member_role === 'manager' ? 'var(--text-main)': '#ccc'};color:${m.member_role === 'manager' ? 'white': 'black'};">${escapeHtml(m.member_role)}</span></td>
+                <td>${formatDate(m.joined_at)}</td>
+                <td>
+                   <button class="button button-small remove-btn" data-id="${m.id}" style="background:transparent;border:1px solid #bb4f4f;color:#bb4f4f;">Remove</button>
+                </td>
+              </tr>
+            `).join('');
+
+            // Attach listeners to remove buttons
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const userId = e.target.getAttribute('data-id');
+                    if(confirm("Are you sure you want to remove this member?")) {
+                         try {
+                             await apiRequest(`/organizer/clubs/${clubId}/members/${userId}`, { method: 'DELETE' });
+                             loadMembers();
+                         } catch(err) {
+                             alert(err.message);
+                         }
+                    }
+                });
+            });
+
+          } catch (err) {
+             document.getElementById('members-body').innerHTML = `<tr><td colspan="4"><div class="empty-inline error" style="color:red;">Error loading members: ${escapeHtml(err.message)}</div></td></tr>`;
+          }
+      };
+
+      loadMembers();
+
+      // Handle Add form
+      document.getElementById('addMemberForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const p = document.getElementById('addResult');
+          p.textContent = "Processing...";
+          try {
+              await apiRequest(`/organizer/clubs/${clubId}/members`, {
+                  method: 'POST',
+                  body: {
+                      user_id: parseInt(e.target.user_id.value),
+                      member_role: e.target.member_role.value
+                  }
+              });
+              p.textContent = "Member added/updated successfully!";
+              p.style.color = "green";
+              e.target.reset();
+              loadMembers();
+          } catch(err) {
+              p.textContent = err.message;
+              p.style.color = "red";
+          }
+      });
+    });
+  </script>
+</body>
+</html>

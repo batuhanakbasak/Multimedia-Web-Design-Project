@@ -107,6 +107,14 @@ export const apiRequest = async (path, options = {}) => {
   }
 
   if (!response.ok || payload?.success === false) {
+    // 401 Unauthorized - Token Expired or Invalid
+    if (response.status === 401) {
+      localStorage.removeItem(ORGANIZER_TOKEN_KEY);
+      localStorage.removeItem('organizer_profile');
+      window.location.href = './login.html?reason=session';
+      return;
+    }
+
     const requestError = new Error(
       extractErrorMessage(payload, `Request failed with status ${response.status}`)
     );

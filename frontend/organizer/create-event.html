@@ -10,7 +10,7 @@
       .form-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr 1fr; margin-bottom: 24px; }
       .form-field { display: flex; flex-direction: column; gap: 0.5rem; color:var(--ink-soft); font-weight:600; }
       .form-field input, .form-field select, .form-field textarea { padding: 0.85rem; border: 1px solid var(--border); border-radius: 12px; background: rgba(255, 255, 255, 0.9); width:100%; font-family: inherit;}
-      .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: rgba(31, 138, 132, 0.48); box-shadow: 0 0 0 4px rgba(31, 138, 132, 0.12); }
+      .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--text-main); box-shadow: 0 0 0 4px rgba(23, 36, 43, 0.12); }
       .full-width { grid-column: 1 / -1; }
   </style>
 </head>
@@ -61,14 +61,24 @@
                              <option value="sports">Sports</option>
                          </select>
                      </div>
-                     <div class="form-field">
-                         <label>Participant Quota</label>
-                         <input type="number" name="quota" required min="1" placeholder="Max capacity" />
-                     </div>
+                      <div class="form-field">
+                          <label>Club Association (Optional)</label>
+                          <select name="club_id" id="clubSelect">
+                              <option value="">No Club (Personal Event)</option>
+                          </select>
+                      </div>
+                      <div class="form-field">
+                          <label>Participant Quota</label>
+                          <input type="number" name="quota" required min="1" placeholder="Max capacity" />
+                      </div>
+                      <div class="form-field full-width">
+                          <label>Event Image URL</label>
+                          <input type="url" name="image_url" placeholder="https://example.com/image.jpg" />
+                      </div>
                  </div>
                  
                  <div style="display:flex; justify-content:flex-end;">
-                    <button type="submit" class="button" style="background:var(--teal);color:white;padding:12px 24px;border-radius:12px;border:none;cursor:pointer;font-weight:600;">Create Event</button>
+                    <button type="submit" class="button" style="background:var(--text-main);color:white;padding:12px 24px;border-radius:12px;border:none;cursor:pointer;font-weight:600;">Create Event</button>
                  </div>
               </form>
             </div>
@@ -83,13 +93,26 @@
     import { requireAuth, renderSidebar, renderNavbar } from './js/app.js';
     import { apiRequest } from './js/api.js';
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       requireAuth();
       renderSidebar('create-event');
       renderNavbar('Create Event');
 
       const form = document.getElementById('createEventForm');
       const alertBox = document.getElementById('formAlert');
+      const clubSelect = document.getElementById('clubSelect');
+
+      // Fetch clubs to populate dropdown
+      try {
+          const response = await apiRequest('/organizer/clubs');
+          const clubs = response.data || [];
+          clubs.forEach(c => {
+              const opt = document.createElement('option');
+              opt.value = c.id;
+              opt.textContent = c.name;
+              clubSelect.appendChild(opt);
+          });
+      } catch (err) { console.error("Could not load clubs", err); }
 
       form.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -104,7 +127,9 @@
              event_date: form.event_date.value,
              location: form.location.value,
              category: form.category.value,
-             quota: parseInt(form.quota.value)
+             quota: parseInt(form.quota.value),
+             club_id: form.club_id.value ? parseInt(form.club_id.value) : null,
+             image_url: form.image_url.value || null
           };
 
           try {

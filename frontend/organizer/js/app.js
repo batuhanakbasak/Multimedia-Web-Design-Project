@@ -20,13 +20,14 @@ export const renderSidebar = (activeNav) => {
     const links = [
         { key: 'dashboard', label: 'Dashboard', href: 'dashboard.html' },
         { key: 'create-event', label: 'Create Event', href: 'create-event.html' },
+        { key: 'clubs', label: 'Manage Clubs', href: 'clubs.html' },
         { key: 'profile', label: 'My Profile', href: 'profile.html' }
     ];
 
     root.innerHTML = `
         <div class="sidebar-panel">
             <div class="sidebar-brand">
-                <div class="sidebar-brand-mark" style="background:var(--teal)">O</div>
+                <div class="sidebar-brand-mark" style="background:var(--text-main); color:white">O</div>
                 <div class="sidebar-brand-copy">
                     <p class="eyebrow">IBU Connect</p>
                     <h1>Organizer</h1>

@@ -85,8 +85,7 @@ button {
 }
 
 .sidebar {
-  position: sticky;
-  top: 0;
+  position: relative;
   align-self: start;
   min-height: 100vh;
   padding: 1.25rem;
@@ -273,8 +272,7 @@ button {
 }
 
 #navbar-root {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 20;
   padding: 1.25rem 1.5rem 0;
 }

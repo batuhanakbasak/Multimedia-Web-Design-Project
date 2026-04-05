@@ -12,30 +12,46 @@
     <section class="auth-showcase">
       <div class="auth-brand">
         <p class="eyebrow">IBU Connect Platform</p>
-        <h1>Join the campus life.</h1>
+        <h1>Connect with your campus community.</h1>
+        <p>Discover events, join clubs, and make the most of your student life at IBU.</p>
+      </div>
+
+      <div class="auth-highlights">
+        <article>
+          <strong>Discover Events</strong>
+          <span>Find workshops, seminars and social gatherings.</span>
+        </article>
       </div>
     </section>
 
     <section class="auth-card">
       <div class="auth-card-head">
-        <p class="eyebrow">Student Sign In</p>
+        <p class="eyebrow">Student Portal</p>
         <h2>Welcome back</h2>
+        <p>Sign in to your student account to continue.</p>
       </div>
 
       <div class="auth-message" data-login-message hidden></div>
 
       <form class="auth-form" data-login-form>
-        <label><span>Email</span><input type="email" name="email" required /></label>
-        <label><span>Password</span><input type="password" name="password" required /></label>
+        <label>
+          <span>Email Address</span>
+          <input type="email" name="email" placeholder="e.g. name@student.ibu.edu.ba" required />
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" placeholder="••••••••" required />
+        </label>
         <button type="submit" class="auth-submit">Sign In as Student</button>
       </form>
 
-      <div style="margin-top:20px;text-align:center;">
-         <a href="register.html">Don't have an account? Register here.</a>
+      <div class="auth-footnote">
+        <p>Don't have an account? <a href="register.html">Create a student account</a></p>
+        <p><a href="../organizer/login.html" style="font-weight: 400; font-size: 0.9rem; color: var(--ink-soft);">Are you an organizer? Sign in here</a></p>
       </div>
-
     </section>
   </main>
+
   <script src="./js/runtime-config.js"></script>
   <script type="module" src="./js/auth.js"></script>
 </body>
