@@ -68,6 +68,8 @@ const loginValidator = [
   body('password').isString().notEmpty().withMessage('Password is required'),
 ];
 
+const adminLoginValidator = loginValidator;
+
 const refreshTokenValidator = [
   body('refresh_token').isString().notEmpty().withMessage('refresh_token is required'),
 ];
@@ -210,6 +212,27 @@ const statusUpdateValidator = [
   body('is_active').isBoolean().withMessage('is_active must be boolean').toBoolean(),
 ];
 
+const adminUserFiltersValidator = [
+  ...paginationValidators,
+  query('search').optional().trim().isLength({ min: 1, max: 150 }),
+  query('role').optional().isIn(roles).withMessage('role is invalid'),
+  query('is_active')
+    .optional()
+    .isIn(['true', 'false'])
+    .withMessage('is_active must be true or false')
+    .toBoolean(),
+];
+
+const adminClubFiltersValidator = [
+  ...paginationValidators,
+  query('search').optional().trim().isLength({ min: 1, max: 150 }),
+];
+
+const eventStatusUpdateValidator = [
+  positiveIdParam('id'),
+  body('status').isIn(eventStatuses).withMessage('status is invalid'),
+];
+
 const validateRequest = (req, res, next) => {
   const result = validationResult(req);
 
@@ -233,6 +256,7 @@ module.exports = {
   eventFilterValidators,
   studentRegisterValidator,
   loginValidator,
+  adminLoginValidator,
   refreshTokenValidator,
   updateProfileValidator,
   eventCreateValidator,
@@ -242,5 +266,8 @@ module.exports = {
   clubMemberValidator,
   roleUpdateValidator,
   statusUpdateValidator,
+  adminUserFiltersValidator,
+  adminClubFiltersValidator,
+  eventStatusUpdateValidator,
   validateRequest,
 };

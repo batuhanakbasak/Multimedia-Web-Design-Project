@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Clubs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/admin.css" />
+  </head>
+  <body data-page="clubs">
+    <div class="sidebar-overlay" data-sidebar-overlay></div>
+    <div class="admin-shell">
+      <aside class="sidebar" id="sidebar-root"></aside>
+
+      <div class="admin-main">
+        <header id="navbar-root"></header>
+
+        <main class="page-content">
+          <section class="page-banner">
+            <div>
+              <p class="eyebrow">Clubs</p>
+              <h3>Manage community structure and memberships</h3>
+              <p class="section-copy">
+                Create clubs, refine their details, and keep managers and members organized.
+              </p>
+            </div>
+            <div class="page-banner-actions">
+              <button type="button" class="button button-secondary" id="clubs-refresh">Refresh</button>
+              <button type="button" class="button button-primary" id="clubs-create-button">Create Club</button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <form class="toolbar-grid compact" id="clubs-filters">
+              <label>
+                <span>Search</span>
+                <input type="search" name="search" placeholder="Club name or description" />
+              </label>
+              <div class="toolbar-actions">
+                <button type="submit" class="button button-primary">Apply</button>
+                <button type="reset" class="button button-ghost">Reset</button>
+              </div>
+            </form>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Club</th>
+                    <th>Created By</th>
+                    <th>Members</th>
+                    <th>Events</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="clubs-table-body"></tbody>
+              </table>
+            </div>
+
+            <div class="panel-foot">
+              <p id="clubs-summary">Loading clubs...</p>
+              <div id="clubs-pagination" class="pagination-row"></div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast-root" class="toast-root"></div>
+
+    <script src="./js/runtime-config.js"></script>
+    <script type="module" src="./js/clubs.js"></script>
+  </body>
+</html>

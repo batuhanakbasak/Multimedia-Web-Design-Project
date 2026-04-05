@@ -272,10 +272,11 @@ Important rules:
 - organizer can assign `club_id` only if they are a `manager` of that club
 - delete is implemented as soft cancellation by setting `events.status = 'cancelled'`
 
-### `admin.controller.js`
+### `adminAuth.controller.js`, `adminDashboard.controller.js`, `adminUsers.controller.js`, `adminClubs.controller.js`, `adminEvents.controller.js`
 
 Responsibilities:
 
+- admin authentication under `/api/admin/auth`
 - admin dashboard summary
 - list and inspect users
 - update user roles
@@ -283,6 +284,7 @@ Responsibilities:
 - list/create/update/delete clubs
 - add/remove club members
 - list and inspect all events
+- update event status
 - delete any event permanently
 
 Important rules:
@@ -291,6 +293,8 @@ Important rules:
 - deactivating a user revokes active refresh sessions
 - club delete is a hard delete
 - admin event delete is a hard delete
+- self-demotion and self-deactivation are blocked for admins
+- the system keeps at least one active admin
 
 ### `events.controller.js`
 

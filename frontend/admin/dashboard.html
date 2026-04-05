@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/admin.css" />
+  </head>
+  <body data-page="dashboard">
+    <div class="sidebar-overlay" data-sidebar-overlay></div>
+    <div class="admin-shell">
+      <aside class="sidebar" id="sidebar-root"></aside>
+
+      <div class="admin-main">
+        <header id="navbar-root"></header>
+
+        <main class="page-content">
+          <section class="page-banner">
+            <div>
+              <p class="eyebrow">Snapshot</p>
+              <h3>System activity at a glance</h3>
+              <p class="section-copy">
+                Track account growth, current club volume, and event health from the latest admin
+                perspective.
+              </p>
+            </div>
+          </section>
+
+          <section class="stats-grid" id="stats-grid"></section>
+
+          <section class="content-grid two-column">
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="eyebrow">Latest users</p>
+                  <h3>Newest registrations</h3>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Created</th>
+                    </tr>
+                  </thead>
+                  <tbody id="latest-users-body"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="eyebrow">Latest events</p>
+                  <h3>Most recently created</h3>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Organizer</th>
+                      <th>Club</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="latest-events-body"></tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast-root" class="toast-root"></div>
+
+    <script src="./js/runtime-config.js"></script>
+    <script type="module" src="./js/dashboard.js"></script>
+  </body>
+</html>

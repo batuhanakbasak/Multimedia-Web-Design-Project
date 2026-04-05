@@ -273,6 +273,14 @@ All admin routes require a bearer token from an account with `role = admin`.
 |---|---|---|
 | GET | `/api/admin/dashboard` | Get admin dashboard summary. |
 
+### Admin Auth
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/admin/auth/login` | Log in through the admin panel and receive an access token. |
+| GET | `/api/admin/auth/me` | Return the current authenticated admin. |
+| POST | `/api/admin/auth/logout` | Revoke active stored sessions for the current admin and clear the frontend session. |
+
 ### User Management
 
 | Method | Endpoint | Description |
@@ -309,6 +317,7 @@ search, role, is_active, page, limit
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/api/admin/clubs` | List clubs with pagination support. |
+| GET | `/api/admin/clubs/:id` | Get club detail with creator, manager list, and recent events. |
 | POST | `/api/admin/clubs` | Create club. |
 | PUT | `/api/admin/clubs/:id` | Update club. |
 | DELETE | `/api/admin/clubs/:id` | Delete club. |
@@ -356,6 +365,7 @@ Note:
 |---|---|---|
 | GET | `/api/admin/events` | List all events with filter and pagination support. |
 | GET | `/api/admin/events/:id` | Get full event detail. |
+| PUT | `/api/admin/events/:id/status` | Update event status. |
 | DELETE | `/api/admin/events/:id` | Hard-delete event. |
 
 Supported admin event query params:
