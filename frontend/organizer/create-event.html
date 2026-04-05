@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Event</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../admin/css/admin.css" />
+  <style>
+      .form-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr 1fr; margin-bottom: 24px; }
+      .form-field { display: flex; flex-direction: column; gap: 0.5rem; color:var(--ink-soft); font-weight:600; }
+      .form-field input, .form-field select, .form-field textarea { padding: 0.85rem; border: 1px solid var(--border); border-radius: 12px; background: rgba(255, 255, 255, 0.9); width:100%; font-family: inherit;}
+      .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: rgba(31, 138, 132, 0.48); box-shadow: 0 0 0 4px rgba(31, 138, 132, 0.12); }
+      .full-width { grid-column: 1 / -1; }
+  </style>
+</head>
+<body data-page="create-event">
+  <div class="admin-shell">
+    <aside class="sidebar" id="sidebar-root"></aside>
+
+    <div class="admin-main">
+      <header id="navbar-root"></header>
+
+      <main class="page-content">
+        <section class="content-grid">
+          <article class="panel" style="grid-column: 1 / -1; max-width:800px; margin: 0 auto; width:100%;">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">New Event</p>
+                <h3>Publish an Event</h3>
+              </div>
+            </div>
+
+            <div style="padding: 2rem;">
+              <form id="createEventForm">
+                 <div id="formAlert" style="padding:1rem; margin-bottom:1rem; border-radius:12px; display:none; font-weight:600;"></div>
+                 
+                 <div class="form-grid">
+                     <div class="form-field full-width">
+                         <label>Event Title</label>
+                         <input type="text" name="title" required placeholder="e.g. AI & Web Design Summit" />
+                     </div>
+                     <div class="form-field full-width">
+                         <label>Description</label>
+                         <textarea name="description" required rows="4" placeholder="What is this event about?"></textarea>
+                     </div>
+                     <div class="form-field">
+                         <label>Date and Time</label>
+                         <input type="datetime-local" name="event_date" required />
+                     </div>
+                     <div class="form-field">
+                         <label>Location / Venue</label>
+                         <input type="text" name="location" required placeholder="e.g. Main Auditorium" />
+                     </div>
+                     <div class="form-field">
+                         <label>Category</label>
+                         <select name="category" required>
+                             <option value="seminar">Seminar</option>
+                             <option value="workshop">Workshop</option>
+                             <option value="social">Social</option>
+                             <option value="sports">Sports</option>
+                         </select>
+                     </div>
+                     <div class="form-field">
+                         <label>Participant Quota</label>
+                         <input type="number" name="quota" required min="1" placeholder="Max capacity" />
+                     </div>
+                 </div>
+                 
+                 <div style="display:flex; justify-content:flex-end;">
+                    <button type="submit" class="button" style="background:var(--teal);color:white;padding:12px 24px;border-radius:12px;border:none;cursor:pointer;font-weight:600;">Create Event</button>
+                 </div>
+              </form>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="./js/runtime-config.js"></script>
+  <script type="module">
+    import { requireAuth, renderSidebar, renderNavbar } from './js/app.js';
+    import { apiRequest } from './js/api.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      requireAuth();
+      renderSidebar('create-event');
+      renderNavbar('Create Event');
+
+      const form = document.getElementById('createEventForm');
+      const alertBox = document.getElementById('formAlert');
+
+      form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = form.querySelector('button[type="submit"]');
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Publishing...';
+          alertBox.style.display = 'none';
+
+          const body = {
+             title: form.title.value,
+             description: form.description.value,
+             event_date: form.event_date.value,
+             location: form.location.value,
+             category: form.category.value,
+             quota: parseInt(form.quota.value)
+          };
+
+          try {
+             await apiRequest('/organizer/events', { method: 'POST', body });
+             alertBox.style.display = 'block';
+             alertBox.style.background = 'rgba(42, 122, 87, 0.14)';
+             alertBox.style.color = '#246a4c';
+             alertBox.textContent = 'Event published successfully! Redirecting...';
+             setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+          } catch(err) {
+             alertBox.style.display = 'block';
+             alertBox.style.background = 'rgba(187, 79, 79, 0.14)';
+             alertBox.style.color = '#9d3d3d';
+             alertBox.textContent = err.message || 'Failed to create event.';
+             submitBtn.disabled = false;
+             submitBtn.textContent = 'Create Event';
+          }
+      });
+    });
+  </script>
+</body>
+</html>

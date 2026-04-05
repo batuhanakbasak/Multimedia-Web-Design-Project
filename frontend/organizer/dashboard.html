@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organizer Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../admin/css/admin.css" />
+</head>
+<body data-page="dashboard">
+  <div class="admin-shell">
+    <aside class="sidebar" id="sidebar-root"></aside>
+
+    <div class="admin-main">
+      <header id="navbar-root"></header>
+
+      <main class="page-content">
+        <section class="page-banner">
+          <div>
+            <p class="eyebrow">Overview</p>
+            <h3>My Created Events</h3>
+            <p class="section-copy">Welcome back. Manage your events and view participant tracking here.</p>
+          </div>
+          <div style="margin-top: 1rem;">
+             <a href="create-event.html" class="button" style="background:var(--teal);color:white;text-decoration:none;padding:10px 20px;border-radius:12px;">+ Create New Event</a>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel" style="grid-column: 1 / -1;">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Active Events</p>
+                <h3>Your Schedule</h3>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Event Title</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Quota</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="events-body">
+                   <tr><td colspan="5"><div class="empty-inline">Loading events...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="./js/runtime-config.js"></script>
+  <script type="module">
+    import { requireAuth, renderSidebar, renderNavbar, escapeHtml, formatDate } from './js/app.js';
+    import { apiRequest } from './js/api.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const profile = requireAuth();
+      renderSidebar('dashboard');
+      renderNavbar('Organizer Dashboard');
+
+      try {
+        const response = await apiRequest('/organizer/events');
+        const events = response.data?.events || response.events || response || [];
+        
+        const tbody = document.getElementById('events-body');
+        if (!events || events.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5"><div class="empty-inline">You haven't created any events yet.</div></td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = events.map(ev => `
+          <tr>
+            <td><strong>${escapeHtml(ev.title)}</strong></td>
+            <td>${formatDate(ev.event_date)}</td>
+            <td>${escapeHtml(ev.location)}</td>
+            <td>${ev.quota || 0}</td>
+            <td><span class="badge status-${(ev.status||'').toLowerCase()}">${escapeHtml(ev.status)}</span></td>
+          </tr>
+        `).join('');
+      } catch (err) {
+         document.getElementById('events-body').innerHTML = `<tr><td colspan="5"><div class="empty-inline error" style="color:red;">Error loading events: ${escapeHtml(err.message)}</div></td></tr>`;
+      }
+    });
+  </script>
+</body>
+</html>

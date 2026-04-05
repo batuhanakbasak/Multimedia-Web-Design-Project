@@ -4,6 +4,11 @@ const ORGANIZER_PROFILE_KEY = 'organizer_profile';
 
 export const getOrganizerToken = () => localStorage.getItem(ORGANIZER_TOKEN_KEY);
 
+export const getOrganizerProfile = () => {
+  const raw = localStorage.getItem(ORGANIZER_PROFILE_KEY);
+  return raw ? JSON.parse(raw) : null;
+};
+
 export const saveOrganizerSession = ({ token, organizer }) => {
   if (token) localStorage.setItem(ORGANIZER_TOKEN_KEY, token);
   if (organizer) localStorage.setItem(ORGANIZER_PROFILE_KEY, JSON.stringify(organizer));
@@ -18,6 +23,11 @@ export const redirectToLogin = (reason = '') => {
   const loginUrl = new URL('./login.html', window.location.href);
   if (reason) loginUrl.searchParams.set('reason', reason);
   window.location.href = loginUrl.toString();
+};
+
+export const logoutOrganizer = () => {
+  clearOrganizerSession();
+  redirectToLogin('signed-out');
 };
 
 const renderLoginMessage = (message, type = 'error') => {
@@ -50,13 +60,11 @@ const initializeLoginPage = () => {
 
       saveOrganizerSession({
         token: response.data?.token || response.token,
-        organizer: response.data?.organizer || response.user,
+        organizer: response.data?.organizer || response.user || {email: email, full_name: 'Organizer'},
       });
-
       window.location.href = './dashboard.html';
     } catch (error) {
       renderLoginMessage(error.message || 'Login failed.');
-    } finally {
       submitButton.disabled = false;
       submitButton.textContent = 'Sign In';
     }
