@@ -102,7 +102,7 @@ button {
   background: var(--sidebar-bg);
   color: var(--sidebar-text);
   box-shadow: 0 30px 60px rgba(8, 18, 22, 0.28);
-  overflow-y: auto;
+  overflow-y: hidden;
   overscroll-behavior: contain;
 }
 
