@@ -1,6 +1,7 @@
 import { apiRequest } from './api.js';
 import {
   clearAdminSession,
+  getAdminProfile,
   getAdminToken,
   logoutAdmin,
   saveAdminSession,
@@ -12,6 +13,21 @@ import { renderNavbar } from '../components/navbar.js';
 const resolveLoginRedirect = () => {
   clearAdminSession();
   redirectToLogin('expired');
+};
+
+const renderAdminShell = ({ title, activeNav, admin }) => {
+  const sidebarRoot = document.querySelector('#sidebar-root');
+  const navbarRoot = document.querySelector('#navbar-root');
+
+  if (sidebarRoot) {
+    sidebarRoot.innerHTML = renderSidebar(activeNav, admin);
+  }
+
+  if (navbarRoot) {
+    navbarRoot.innerHTML = renderNavbar({ title, admin });
+  }
+
+  bindShellEvents();
 };
 
 const bindShellEvents = () => {
@@ -83,27 +99,45 @@ export const initializeAdminPage = async ({ title, activeNav }) => {
     throw new Error('Admin token is missing');
   }
 
+  const cachedAdmin =
+    getAdminProfile() || {
+      full_name: 'Administrator',
+      email: 'Connection pending',
+      role: 'admin',
+    };
+
+  renderAdminShell({
+    title,
+    activeNav,
+    admin: cachedAdmin,
+  });
+
   try {
     const response = await apiRequest('/admin/auth/me');
     const admin = response.data;
 
     saveAdminSession({ token, admin });
-
-    const sidebarRoot = document.querySelector('#sidebar-root');
-    const navbarRoot = document.querySelector('#navbar-root');
-
-    if (sidebarRoot) {
-      sidebarRoot.innerHTML = renderSidebar(activeNav, admin);
-    }
-
-    if (navbarRoot) {
-      navbarRoot.innerHTML = renderNavbar({ title, admin });
-    }
-
-    bindShellEvents();
+    renderAdminShell({ title, activeNav, admin });
     return admin;
   } catch (error) {
-    resolveLoginRedirect();
+    if (error.status === 401) {
+      resolveLoginRedirect();
+      throw error;
+    }
+
+    if (error.status === 403) {
+      clearAdminSession();
+      redirectToLogin('forbidden');
+      throw error;
+    }
+
+    showToast(error.message, 'error');
+    renderAdminShell({
+      title,
+      activeNav,
+      admin: cachedAdmin,
+    });
+
     throw error;
   }
 };

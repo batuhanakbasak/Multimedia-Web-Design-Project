@@ -84,15 +84,42 @@ const renderLatestEvents = (events = []) => {
     .join('');
 };
 
+const renderDashboardError = (message) => {
+  document.querySelector('#stats-grid').innerHTML = `
+    <div class="empty-state">Dashboard data could not be loaded. ${escapeHtml(message)}</div>
+  `;
+
+  document.querySelector('#latest-users-body').innerHTML = `
+    <tr>
+      <td colspan="5">
+        <div class="empty-inline">${escapeHtml(message)}</div>
+      </td>
+    </tr>
+  `;
+
+  document.querySelector('#latest-events-body').innerHTML = `
+    <tr>
+      <td colspan="5">
+        <div class="empty-inline">${escapeHtml(message)}</div>
+      </td>
+    </tr>
+  `;
+};
+
 const initializeDashboard = async () => {
   if (document.body?.dataset.page !== 'dashboard') {
     return;
   }
 
-  await initializeAdminPage({
-    title: 'Dashboard Overview',
-    activeNav: 'dashboard',
-  });
+  try {
+    await initializeAdminPage({
+      title: 'Dashboard Overview',
+      activeNav: 'dashboard',
+    });
+  } catch (error) {
+    renderDashboardError(error.message);
+    return;
+  }
 
   try {
     const response = await apiRequest('/admin/dashboard');
@@ -103,6 +130,7 @@ const initializeDashboard = async () => {
     renderLatestEvents(stats.latest_created_events);
   } catch (error) {
     showToast(error.message, 'error');
+    renderDashboardError(error.message);
   }
 };
 

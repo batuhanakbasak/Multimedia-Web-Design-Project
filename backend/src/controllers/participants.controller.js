@@ -3,6 +3,7 @@ const asyncHandler = require('../utils/async-handler');
 const AppError = require('../utils/errors');
 const { successResponse } = require('../utils/response');
 const { getPagination } = require('../utils/helpers');
+const { hasEventsMetadataColumn, isMissingColumnError } = require('../utils/schema-capabilities');
 const { getEventDetail } = require('../utils/event-query');
 
 const resolveEventId = (req) => Number.parseInt(req.params.id || req.params.eventId, 10);
@@ -126,59 +127,68 @@ const leaveEvent = asyncHandler(async (req, res) => {
 const listJoinedEvents = asyncHandler(async (req, res) => {
   const { page, limit, offset } = getPagination(req.query);
   const userId = req.user.id;
+  const buildJoinedEventsListQuery = (hasMetadata) => `
+    SELECT
+      e.id,
+      e.title,
+      e.description,
+      e.category,
+      e.event_date,
+      e.location,
+      e.image_url,
+      e.quota,
+      e.status,
+      ${hasMetadata ? 'e.metadata,' : `'{}'::jsonb AS metadata,`}
+      ep.joined_at,
+      json_build_object(
+        'id', o.id,
+        'full_name', o.full_name,
+        'email', o.email,
+        'profile_image', o.profile_image
+      ) AS organizer,
+      CASE
+        WHEN c.id IS NULL THEN NULL
+        ELSE json_build_object(
+          'id', c.id,
+          'name', c.name,
+          'logo_url', c.logo_url,
+          'is_active', c.is_active
+        )
+      END AS club
+    FROM event_participants ep
+    JOIN events e ON e.id = ep.event_id
+    JOIN users o ON o.id = e.organizer_id
+    LEFT JOIN clubs c ON c.id = e.club_id
+    WHERE ep.user_id = $1
+      AND ep.status = 'joined'
+    ORDER BY e.event_date ASC
+    LIMIT $2
+    OFFSET $3
+  `;
 
-  const [listResult, countResult] = await Promise.all([
-    query(
-      `
-        SELECT
-          e.id,
-          e.title,
-          e.description,
-          e.category,
-          e.event_date,
-          e.location,
-          e.image_url,
-          e.quota,
-          e.status,
-          e.metadata,
-          ep.joined_at,
-          json_build_object(
-            'id', o.id,
-            'full_name', o.full_name,
-            'email', o.email,
-            'profile_image', o.profile_image
-          ) AS organizer,
-          CASE
-            WHEN c.id IS NULL THEN NULL
-            ELSE json_build_object(
-              'id', c.id,
-              'name', c.name,
-              'logo_url', c.logo_url,
-              'is_active', c.is_active
-            )
-          END AS club
-        FROM event_participants ep
-        JOIN events e ON e.id = ep.event_id
-        JOIN users o ON o.id = e.organizer_id
-        LEFT JOIN clubs c ON c.id = e.club_id
-        WHERE ep.user_id = $1
-          AND ep.status = 'joined'
-        ORDER BY e.event_date ASC
-        LIMIT $2
-        OFFSET $3
-      `,
-      [userId, limit, offset]
-    ),
-    query(
-      `
-        SELECT COUNT(*)::int AS total
-        FROM event_participants
-        WHERE user_id = $1
-          AND status = 'joined'
-      `,
-      [userId]
-    ),
-  ]);
+  const hasMetadata = await hasEventsMetadataColumn(query);
+
+  let listResult;
+
+  try {
+    listResult = await query(buildJoinedEventsListQuery(hasMetadata), [userId, limit, offset]);
+  } catch (error) {
+    if (hasMetadata && isMissingColumnError(error, 'metadata')) {
+      listResult = await query(buildJoinedEventsListQuery(false), [userId, limit, offset]);
+    } else {
+      throw error;
+    }
+  }
+
+  const countResult = await query(
+    `
+      SELECT COUNT(*)::int AS total
+      FROM event_participants
+      WHERE user_id = $1
+        AND status = 'joined'
+    `,
+    [userId]
+  );
 
   const total = countResult.rows[0].total;
 

@@ -84,6 +84,19 @@ const renderUsersMeta = (meta) => {
   summary.textContent = `Showing ${start}-${end} of ${meta.total} users`;
 };
 
+const renderUsersError = (message) => {
+  document.querySelector('#users-table-body').innerHTML = `
+    <tr>
+      <td colspan="7">
+        <div class="empty-inline">${escapeHtml(message)}</div>
+      </td>
+    </tr>
+  `;
+
+  document.querySelector('#users-summary').textContent = 'Users could not be loaded.';
+  renderPagination(document.querySelector('#users-pagination'), null, () => {});
+};
+
 const openRoleModal = (user) => {
   openModal({
     title: `Change role for ${user.name}`,
@@ -179,6 +192,7 @@ const loadUsers = async () => {
     });
   } catch (error) {
     showToast(error.message, 'error');
+    renderUsersError(error.message);
   }
 };
 
@@ -187,10 +201,15 @@ const initializeUsersPage = async () => {
     return;
   }
 
-  await initializeAdminPage({
-    title: 'User Management',
-    activeNav: 'users',
-  });
+  try {
+    await initializeAdminPage({
+      title: 'User Management',
+      activeNav: 'users',
+    });
+  } catch (error) {
+    renderUsersError(error.message);
+    return;
+  }
 
   const filtersForm = document.querySelector('#users-filters');
   const tableBody = document.querySelector('#users-table-body');
@@ -326,10 +345,17 @@ const initializeUserDetailPage = async () => {
     return;
   }
 
-  await initializeAdminPage({
-    title: 'User Detail',
-    activeNav: 'users',
-  });
+  try {
+    await initializeAdminPage({
+      title: 'User Detail',
+      activeNav: 'users',
+    });
+  } catch (error) {
+    document.querySelector('#user-detail-header').innerHTML = `
+      <div class="empty-state">${escapeHtml(error.message)}</div>
+    `;
+    return;
+  }
 
   const userId = getQueryId();
 

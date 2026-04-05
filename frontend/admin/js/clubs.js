@@ -89,6 +89,19 @@ const renderClubsMeta = (meta) => {
   summary.textContent = `Showing ${start}-${end} of ${meta.total} clubs`;
 };
 
+const renderClubsError = (message) => {
+  document.querySelector('#clubs-table-body').innerHTML = `
+    <tr>
+      <td colspan="7">
+        <div class="empty-inline">${escapeHtml(message)}</div>
+      </td>
+    </tr>
+  `;
+
+  document.querySelector('#clubs-summary').textContent = 'Clubs could not be loaded.';
+  renderPagination(document.querySelector('#clubs-pagination'), null, () => {});
+};
+
 const loadClubs = async () => {
   const tbody = document.querySelector('#clubs-table-body');
   tbody.innerHTML = `
@@ -109,6 +122,7 @@ const loadClubs = async () => {
     });
   } catch (error) {
     showToast(error.message, 'error');
+    renderClubsError(error.message);
   }
 };
 
@@ -345,10 +359,15 @@ const initializeClubsPage = async () => {
     return;
   }
 
-  await initializeAdminPage({
-    title: 'Club Management',
-    activeNav: 'clubs',
-  });
+  try {
+    await initializeAdminPage({
+      title: 'Club Management',
+      activeNav: 'clubs',
+    });
+  } catch (error) {
+    renderClubsError(error.message);
+    return;
+  }
 
   const filtersForm = document.querySelector('#clubs-filters');
   const createButton = document.querySelector('#clubs-create-button');
@@ -525,10 +544,17 @@ const initializeClubDetailPage = async () => {
     return;
   }
 
-  await initializeAdminPage({
-    title: 'Club Detail',
-    activeNav: 'clubs',
-  });
+  try {
+    await initializeAdminPage({
+      title: 'Club Detail',
+      activeNav: 'clubs',
+    });
+  } catch (error) {
+    document.querySelector('#club-detail-header').innerHTML = `
+      <div class="empty-state">${escapeHtml(error.message)}</div>
+    `;
+    return;
+  }
 
   const clubId = getQueryId();
 

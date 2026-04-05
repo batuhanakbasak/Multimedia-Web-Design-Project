@@ -39,6 +39,11 @@ const errorHandler = (err, req, res, next) => {
     message = 'Invalid parameter format';
   }
 
+  if (err.code === '42703' || err.code === '42P01') {
+    statusCode = 500;
+    message = 'Database schema does not match the backend code';
+  }
+
   if (statusCode >= 500) {
     console.error(err);
   }

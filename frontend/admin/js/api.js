@@ -1,4 +1,8 @@
 const normalizeBaseUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
+const getCurrentOriginLabel = () =>
+  window.location.origin && window.location.origin !== 'null'
+    ? window.location.origin
+    : 'file://';
 
 const resolveApiBaseUrl = () => {
   const runtimeConfigUrl = window.ADMIN_APP_CONFIG?.apiBaseUrl;
@@ -72,11 +76,27 @@ export const apiRequest = async (path, options = {}) => {
     }
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method,
-    headers: requestHeaders,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  let response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers: requestHeaders,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch (error) {
+    const currentOrigin = getCurrentOriginLabel();
+    const isFileOrigin = currentOrigin === 'file://';
+    const hint = isFileOrigin
+      ? 'Open the frontend through a local static server such as http://localhost:5500/login.html.'
+      : `Allow ${currentOrigin} in backend CORS settings and confirm that ${API_BASE_URL} is reachable.`;
+
+    const requestError = new Error(`Unable to reach the admin API. ${hint}`);
+    requestError.status = 0;
+    requestError.code = 'NETWORK_ERROR';
+    requestError.payload = null;
+    throw requestError;
+  }
 
   let payload = null;
 

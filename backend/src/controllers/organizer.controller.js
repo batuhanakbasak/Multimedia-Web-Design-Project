@@ -3,6 +3,7 @@ const asyncHandler = require('../utils/async-handler');
 const AppError = require('../utils/errors');
 const { successResponse } = require('../utils/response');
 const { buildUpdateFields } = require('../utils/helpers');
+const { hasEventsMetadataColumn } = require('../utils/schema-capabilities');
 const { getPaginatedEvents, getEventDetail } = require('../utils/event-query');
 
 const ensureManagedClub = async (db, organizerId, clubId) => {
@@ -134,40 +135,50 @@ const createEvent = asyncHandler(async (req, res) => {
   const organizerId = req.user.id;
 
   const event = await withTransaction(async (client) => {
+    const hasMetadata = await hasEventsMetadataColumn(client);
+
     if (req.body.club_id !== null && req.body.club_id !== undefined) {
       await ensureManagedClub(client, organizerId, req.body.club_id);
     }
 
+    const insertFields = [
+      'club_id',
+      'organizer_id',
+      'title',
+      'description',
+      'category',
+      'event_date',
+      'location',
+      'image_url',
+      'quota',
+      'status',
+    ];
+
+    const insertValues = [
+      req.body.club_id ?? null,
+      organizerId,
+      req.body.title.trim(),
+      req.body.description.trim(),
+      req.body.category.trim(),
+      req.body.event_date,
+      req.body.location.trim(),
+      req.body.image_url ?? null,
+      req.body.quota,
+      'active',
+    ];
+
+    if (hasMetadata) {
+      insertFields.push('metadata');
+      insertValues.push(req.body.metadata || {});
+    }
+
     const insertResult = await client.query(
       `
-        INSERT INTO events (
-          club_id,
-          organizer_id,
-          title,
-          description,
-          category,
-          event_date,
-          location,
-          image_url,
-          quota,
-          status,
-          metadata
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'active', $10)
+        INSERT INTO events (${insertFields.join(', ')})
+        VALUES (${insertFields.map((field, index) => `$${index + 1}`).join(', ')})
         RETURNING id
       `,
-      [
-        req.body.club_id ?? null,
-        organizerId,
-        req.body.title.trim(),
-        req.body.description.trim(),
-        req.body.category.trim(),
-        req.body.event_date,
-        req.body.location.trim(),
-        req.body.image_url ?? null,
-        req.body.quota,
-        req.body.metadata || {},
-      ]
+      insertValues
     );
 
     return getEventDetail(client, insertResult.rows[0].id, organizerId);
@@ -185,6 +196,8 @@ const updateEvent = asyncHandler(async (req, res) => {
   const eventId = Number.parseInt(req.params.id, 10);
 
   const updatedEvent = await withTransaction(async (client) => {
+    const hasMetadata = await hasEventsMetadataColumn(client);
+
     await loadOwnedEventOrFail(client, organizerId, eventId);
 
     if (Object.prototype.hasOwnProperty.call(req.body, 'club_id') && req.body.club_id !== null) {
@@ -209,7 +222,11 @@ const updateEvent = asyncHandler(async (req, res) => {
       payload.location = payload.location.trim();
     }
 
-    const { setClauses, values } = buildUpdateFields(payload, [
+    if (!hasMetadata) {
+      delete payload.metadata;
+    }
+
+    const allowedFields = [
       'club_id',
       'title',
       'description',
@@ -219,8 +236,13 @@ const updateEvent = asyncHandler(async (req, res) => {
       'image_url',
       'quota',
       'status',
-      'metadata',
-    ]);
+    ];
+
+    if (hasMetadata) {
+      allowedFields.push('metadata');
+    }
+
+    const { setClauses, values } = buildUpdateFields(payload, allowedFields);
 
     if (setClauses.length === 0) {
       throw new AppError(400, 'No event fields were provided for update');

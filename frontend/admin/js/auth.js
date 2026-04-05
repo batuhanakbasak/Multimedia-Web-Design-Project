@@ -89,7 +89,9 @@ const getReasonMessage = (reason) => {
   const reasonMap = {
     session: 'Please sign in to continue to the admin panel.',
     expired: 'Your session expired. Please sign in again.',
-    signed-out: 'You have been signed out.',
+    'signed-out': 'You have been signed out.',
+    forbidden: 'Only active admins can access this panel.',
+    network: 'The admin panel could not reach the API. Check the server and CORS settings.',
   };
 
   return reasonMap[reason] || '';
@@ -138,7 +140,14 @@ const initializeLoginPage = () => {
 
       window.location.href = './dashboard.html';
     } catch (error) {
-      renderLoginMessage(error.message);
+      const message =
+        error.status === 401
+          ? 'Wrong email or password.'
+          : error.status === 403
+            ? 'Only active admins can sign in to the admin panel.'
+            : error.message;
+
+      renderLoginMessage(message);
     } finally {
       submitButton.disabled = false;
       submitButton.textContent = 'Sign In';

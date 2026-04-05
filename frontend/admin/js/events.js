@@ -72,6 +72,19 @@ const renderEventsMeta = (meta) => {
   summary.textContent = `Showing ${start}-${end} of ${meta.total} events`;
 };
 
+const renderEventsError = (message) => {
+  document.querySelector('#events-table-body').innerHTML = `
+    <tr>
+      <td colspan="8">
+        <div class="empty-inline">${escapeHtml(message)}</div>
+      </td>
+    </tr>
+  `;
+
+  document.querySelector('#events-summary').textContent = 'Events could not be loaded.';
+  renderPagination(document.querySelector('#events-pagination'), null, () => {});
+};
+
 const loadEvents = async () => {
   const tbody = document.querySelector('#events-table-body');
   tbody.innerHTML = `
@@ -92,6 +105,7 @@ const loadEvents = async () => {
     });
   } catch (error) {
     showToast(error.message, 'error');
+    renderEventsError(error.message);
   }
 };
 
@@ -170,10 +184,15 @@ const initializeEventsPage = async () => {
     return;
   }
 
-  await initializeAdminPage({
-    title: 'Event Management',
-    activeNav: 'events',
-  });
+  try {
+    await initializeAdminPage({
+      title: 'Event Management',
+      activeNav: 'events',
+    });
+  } catch (error) {
+    renderEventsError(error.message);
+    return;
+  }
 
   const filtersForm = document.querySelector('#events-filters');
   const refreshButton = document.querySelector('#events-refresh');
@@ -229,12 +248,26 @@ const initializeEventsPage = async () => {
 };
 
 const renderEventDetail = (event) => {
+  const metadata =
+    event.metadata && typeof event.metadata === 'object' && !Array.isArray(event.metadata)
+      ? event.metadata
+      : {};
+
+  const metadataBlock = Object.keys(metadata).length
+    ? `
+      <div class="detail-block">
+        <h4>Metadata</h4>
+        <pre class="code-block">${escapeHtml(JSON.stringify(metadata, null, 2))}</pre>
+      </div>
+    `
+    : '';
+
   document.querySelector('#event-detail-header').innerHTML = `
     <article class="hero-card">
       <div>
         <p class="eyebrow">Event Detail</p>
         <h3>${escapeHtml(event.title)}</h3>
-        <p class="hero-copy">${escapeHtml(event.description)}</p>
+        <p class="hero-copy">${escapeHtml(event.description || 'No description provided')}</p>
       </div>
       <div class="hero-badges">
         <span class="badge ${getEventStatusBadgeClass(event.status)}">${escapeHtml(event.status)}</span>
@@ -259,11 +292,11 @@ const renderEventDetail = (event) => {
 
   document.querySelector('#event-profile-card').innerHTML = `
     <dl class="detail-list">
-      <div><dt>Category</dt><dd>${escapeHtml(event.category)}</dd></div>
-      <div><dt>Location</dt><dd>${escapeHtml(event.location)}</dd></div>
+      <div><dt>Category</dt><dd>${escapeHtml(event.category || '-')}</dd></div>
+      <div><dt>Location</dt><dd>${escapeHtml(event.location || '-')}</dd></div>
       <div><dt>Organizer</dt><dd>${escapeHtml(event.organizer?.full_name || '-')}</dd></div>
       <div><dt>Club</dt><dd>${escapeHtml(event.club?.name || 'Independent')}</dd></div>
-      <div><dt>Status</dt><dd>${escapeHtml(event.status)}</dd></div>
+      <div><dt>Status</dt><dd>${escapeHtml(event.status || '-')}</dd></div>
       <div><dt>Created At</dt><dd>${formatDateTime(event.created_at)}</dd></div>
     </dl>
   `;
@@ -271,16 +304,13 @@ const renderEventDetail = (event) => {
   document.querySelector('#event-additional-info').innerHTML = `
     <div class="detail-block">
       <h4>Description</h4>
-      <p>${escapeHtml(event.description)}</p>
+      <p>${escapeHtml(event.description || 'No description provided')}</p>
     </div>
     <div class="detail-block">
       <h4>Image URL</h4>
       <p>${escapeHtml(event.image_url || 'No image provided')}</p>
     </div>
-    <div class="detail-block">
-      <h4>Metadata</h4>
-      <pre class="code-block">${escapeHtml(JSON.stringify(event.metadata || {}, null, 2))}</pre>
-    </div>
+    ${metadataBlock}
   `;
 };
 
@@ -289,10 +319,17 @@ const initializeEventDetailPage = async () => {
     return;
   }
 
-  await initializeAdminPage({
-    title: 'Event Detail',
-    activeNav: 'events',
-  });
+  try {
+    await initializeAdminPage({
+      title: 'Event Detail',
+      activeNav: 'events',
+    });
+  } catch (error) {
+    document.querySelector('#event-detail-header').innerHTML = `
+      <div class="empty-state">${escapeHtml(error.message)}</div>
+    `;
+    return;
+  }
 
   const eventId = getQueryId();
 

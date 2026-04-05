@@ -29,7 +29,7 @@ export const renderNavbar = ({ title, admin }) => `
         <span class="chip-label">Role</span>
         <strong>${admin?.role || 'admin'}</strong>
       </div>
-      <button type="button" class="button button-secondary desktop-only" data-logout-trigger>
+      <button type="button" class="button button-secondary topbar-logout desktop-only" data-logout-trigger>
         Logout
       </button>
     </div>

@@ -1,4 +1,5 @@
 const { getPagination } = require('./helpers');
+const { hasEventsMetadataColumn, isMissingColumnError } = require('./schema-capabilities');
 
 const SORT_MAP = {
   newest: 'e.created_at DESC, e.id DESC',
@@ -74,9 +75,12 @@ const buildEventFilters = (filters = {}, options = {}) => {
 
 const getSortClause = (sort = 'upcoming') => SORT_MAP[sort] || SORT_MAP.upcoming;
 
-const getPaginatedEvents = async (db, filters = {}, options = {}) => {
+const buildMetadataSelect = (hasMetadata) => (hasMetadata ? 'e.metadata,' : `'{}'::jsonb AS metadata,`);
+
+const buildPaginatedEventsQueries = (filters = {}, options = {}, hasMetadata = false) => {
   const { page, limit, offset } = getPagination(filters);
   const { whereClause, values } = buildEventFilters(filters, options);
+  const metadataSelect = buildMetadataSelect(hasMetadata);
 
   const listQuery = `
     SELECT
@@ -91,7 +95,7 @@ const getPaginatedEvents = async (db, filters = {}, options = {}) => {
       e.image_url,
       e.quota,
       e.status,
-      e.metadata,
+      ${metadataSelect}
       e.created_at,
       e.updated_at,
       COALESCE(ep.joined_count, 0) AS joined_count,
@@ -130,6 +134,23 @@ const getPaginatedEvents = async (db, filters = {}, options = {}) => {
     ${whereClause}
   `;
 
+  return {
+    listQuery,
+    countQuery,
+    values,
+    page,
+    limit,
+    offset,
+  };
+};
+
+const executePaginatedEventsQuery = async (db, filters = {}, options = {}, hasMetadata = false) => {
+  const { listQuery, countQuery, values, page, limit, offset } = buildPaginatedEventsQueries(
+    filters,
+    options,
+    hasMetadata
+  );
+
   const [listResult, countResult] = await Promise.all([
     executeQuery(db, listQuery, [...values, limit, offset]),
     executeQuery(db, countQuery, values),
@@ -148,8 +169,10 @@ const getPaginatedEvents = async (db, filters = {}, options = {}) => {
   };
 };
 
-const getEventDetail = async (db, eventId, userId = null) => {
-  const detailQuery = `
+const buildEventDetailQuery = (hasMetadata = false) => {
+  const metadataSelect = buildMetadataSelect(hasMetadata);
+
+  return `
     SELECT
       e.id,
       e.club_id,
@@ -162,7 +185,7 @@ const getEventDetail = async (db, eventId, userId = null) => {
       e.image_url,
       e.quota,
       e.status,
-      e.metadata,
+      ${metadataSelect}
       e.created_at,
       e.updated_at,
       COALESCE(ep.joined_count, 0) AS joined_count,
@@ -211,9 +234,36 @@ const getEventDetail = async (db, eventId, userId = null) => {
     ) ep ON ep.event_id = e.id
     WHERE e.id = $1
   `;
+};
 
-  const result = await executeQuery(db, detailQuery, [eventId, userId]);
-  return result.rows[0] || null;
+const getPaginatedEvents = async (db, filters = {}, options = {}) => {
+  const hasMetadata = await hasEventsMetadataColumn(db);
+
+  try {
+    return await executePaginatedEventsQuery(db, filters, options, hasMetadata);
+  } catch (error) {
+    if (hasMetadata && isMissingColumnError(error, 'metadata')) {
+      return executePaginatedEventsQuery(db, filters, options, false);
+    }
+
+    throw error;
+  }
+};
+
+const getEventDetail = async (db, eventId, userId = null) => {
+  const hasMetadata = await hasEventsMetadataColumn(db);
+
+  try {
+    const result = await executeQuery(db, buildEventDetailQuery(hasMetadata), [eventId, userId]);
+    return result.rows[0] || null;
+  } catch (error) {
+    if (hasMetadata && isMissingColumnError(error, 'metadata')) {
+      const fallbackResult = await executeQuery(db, buildEventDetailQuery(false), [eventId, userId]);
+      return fallbackResult.rows[0] || null;
+    }
+
+    throw error;
+  }
 };
 
 module.exports = {

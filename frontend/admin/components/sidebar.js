@@ -17,7 +17,7 @@ export const renderSidebar = (activeNav, admin) => `
   <div class="sidebar-panel">
     <div class="sidebar-brand">
       <div class="sidebar-brand-mark">AE</div>
-      <div>
+      <div class="sidebar-brand-copy">
         <p class="eyebrow">University Events</p>
         <h1>Admin Panel</h1>
       </div>
@@ -28,7 +28,7 @@ export const renderSidebar = (activeNav, admin) => `
 
     <div class="sidebar-profile">
       <div class="avatar-chip">${initialsFromName(admin?.full_name)}</div>
-      <div>
+      <div class="sidebar-profile-copy">
         <strong>${admin?.full_name || 'Administrator'}</strong>
         <p>${admin?.email || 'admin@example.com'}</p>
       </div>
@@ -48,7 +48,7 @@ export const renderSidebar = (activeNav, admin) => `
 
     <div class="sidebar-footer">
       <p>Only active admins can access this area.</p>
-      <button type="button" class="button button-ghost button-block" data-logout-trigger>
+      <button type="button" class="button button-block sidebar-logout" data-logout-trigger>
         Log Out
       </button>
     </div>
