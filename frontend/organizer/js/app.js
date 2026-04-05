@@ -19,7 +19,8 @@ export const renderSidebar = (activeNav) => {
 
     const links = [
         { key: 'dashboard', label: 'Dashboard', href: 'dashboard.html' },
-        { key: 'create-event', label: 'Create Event', href: 'create-event.html' }
+        { key: 'create-event', label: 'Create Event', href: 'create-event.html' },
+        { key: 'profile', label: 'My Profile', href: 'profile.html' }
     ];
 
     root.innerHTML = `
