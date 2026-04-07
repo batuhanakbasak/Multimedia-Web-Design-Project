@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Events | IBU Connect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../admin/css/admin.css" />
+</head>
+<body data-page="my-events">
+  <div class="admin-shell">
+    <aside class="sidebar" id="sidebar-root"></aside>
+    <div class="admin-main">
+      <header id="navbar-root"></header>
+      <main class="page-content">
+        <section class="page-banner">
+          <div>
+            <p class="eyebrow">Participation</p>
+            <h3>My Joined Events</h3>
+            <p class="section-copy">Manage and view the events you have registered for.</p>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Event Details</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="my-events-body">
+                   <tr><td colspan="4"><div class="empty-inline">Loading your events...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="./js/runtime-config.js"></script>
+  <script type="module">
+    import { requireAuth, renderSidebar, renderNavbar, escapeHtml, formatDate } from './js/app.js';
+    import { apiRequest } from './js/api.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      requireAuth();
+      renderSidebar('my-events');
+      renderNavbar('My Events');
+
+      const loadMyEvents = async () => {
+        try {
+          const response = await apiRequest('/student/my-events');
+          const events = response.data || [];
+          const tbody = document.getElementById('my-events-body');
+
+          if (events.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4"><div class="empty-inline">You haven\'t joined any events yet. <a href="dashboard.html" style="color:var(--text-main); font-weight:700;">Explore Events</a></div></td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = events.map(ev => `
+            <tr>
+              <td><strong>${escapeHtml(ev.title)}</strong><br><span style="color:var(--text-soft); font-size:0.85rem;">${escapeHtml(ev.location)}</span></td>
+              <td><span class="badge" style="background:#eee;">${escapeHtml(ev.category)}</span></td>
+              <td>${formatDate(ev.event_date)}</td>
+              <td>
+                <a href="event-detail.html?id=${ev.id}" class="button button-small" style="background:var(--text-main); color:white;">View Details</a>
+                <button class="button button-small leave-btn" data-id="${ev.id}" style="background:transparent; border:1px solid #bb4f4f; color:#bb4f4f; margin-left:5px;">Leave</button>
+              </td>
+            </tr>
+          `).join('');
+
+          document.querySelectorAll('.leave-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const id = e.target.getAttribute('data-id');
+              if (confirm('Are you sure you want to leave this event?')) {
+                try {
+                  await apiRequest(`/student/events/${id}/leave`, { method: 'DELETE' });
+                  loadMyEvents();
+                } catch (err) {
+                  alert(err.message);
+                }
+              }
+            });
+          });
+
+        } catch (err) {
+          document.getElementById('my-events-body').innerHTML = `<tr><td colspan="4"><div class="empty-inline error">Error: ${escapeHtml(err.message)}</div></td></tr>`;
+        }
+      };
+
+      loadMyEvents();
+    });
+  </script>
+</body>
+</html>

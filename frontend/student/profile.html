@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Profile | IBU Connect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../admin/css/admin.css" />
+  <style>
+      .profile-card { background: rgba(255,255,255,0.8); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+      .profile-avatar { width: 100px; height: 100px; border-radius: 50%; background: var(--text-main); color: white; display: flex; justify-content: center; align-items: center; font-size: 36px; font-weight: bold; }
+      .form-field { display: flex; flex-direction: column; gap: 0.5rem; color:var(--ink-soft); font-weight:600; text-align:left; width:100%; }
+      .form-field input { padding: 0.85rem; border: 1px solid var(--border); border-radius: 12px; background: rgba(255, 255, 255, 0.9); width:100%; font-family: inherit;}
+  </style>
+</head>
+<body data-page="profile">
+  <div class="admin-shell">
+    <aside class="sidebar" id="sidebar-root"></aside>
+    <div class="admin-main">
+      <header id="navbar-root"></header>
+      <main class="page-content">
+        <section class="page-banner">
+          <div>
+            <p class="eyebrow">Settings</p>
+            <h3>My Student Profile</h3>
+          </div>
+        </section>
+
+        <section class="content-grid two-column">
+           <article class="profile-card">
+               <div id="avatar" class="profile-avatar">S</div>
+               <div style="width:100%;">
+                   <h2 id="name" style="text-align:center; font-family:'Space Grotesk'; margin:0 0 0.5rem 0;">Student Name</h2>
+                   <p id="email" style="text-align:center; color: var(--text-soft); margin-bottom:1.5rem;">email@student.ibu.edu.ba</p>
+
+                   <form id="profileForm" style="display:flex; flex-direction:column; gap:1rem;">
+                       <div id="profileAlert" style="display:none; padding:10px; border-radius:8px;"></div>
+                       <div class="form-field">
+                           <label>Full Name</label>
+                           <input type="text" name="full_name" required />
+                       </div>
+                       <button type="submit" class="button button-block" style="background:var(--text-main);color:white;">Update Profile</button>
+                   </form>
+               </div>
+           </article>
+
+           <article class="profile-card" style="justify-content: flex-start;">
+               <div style="width:100%;">
+                   <h3 style="font-family:'Space Grotesk'; margin: 0 0 1.5rem 0;">Security Settings</h3>
+                   <form id="passwordForm" style="display:flex; flex-direction:column; gap:1rem;">
+                       <div id="passAlert" style="display:none; padding:10px; border-radius:8px;"></div>
+                       <div class="form-field">
+                           <label>Current Password</label>
+                           <input type="password" name="current_password" required />
+                       </div>
+                       <div class="form-field">
+                           <label>New Password</label>
+                           <input type="password" name="new_password" required />
+                       </div>
+                       <button type="submit" class="button button-block" style="background:var(--text-main);color:white;">Change Password</button>
+                   </form>
+               </div>
+           </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="./js/runtime-config.js"></script>
+  <script type="module">
+    import { requireAuth, renderSidebar, renderNavbar, escapeHtml } from './js/app.js';
+    import { apiRequest } from './js/api.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const auth = requireAuth();
+      renderSidebar('profile');
+      renderNavbar('Account Settings');
+
+      try {
+        const response = await apiRequest('/student/profile');
+        const profile = response.data || auth;
+
+        document.getElementById('name').textContent = escapeHtml(profile.full_name || 'Student');
+        document.getElementById('email').textContent = escapeHtml(profile.email || '');
+        if (profile.full_name) {
+             document.getElementById('avatar').textContent = profile.full_name.substring(0, 1).toUpperCase();
+        }
+        document.getElementById('profileForm').full_name.value = profile.full_name || '';
+
+      } catch (e) { console.error(e); }
+
+      document.getElementById('profileForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const alert = document.getElementById('profileAlert');
+          try {
+             await apiRequest('/student/profile', {
+                 method: 'PUT',
+                 body: { full_name: e.target.full_name.value }
+             });
+             alert.textContent = "Profile updated!";
+             alert.style.display = "block"; alert.style.color = "green";
+             setTimeout(() => window.location.reload(), 1000);
+          } catch(err) {
+             alert.textContent = err.message;
+             alert.style.display = "block"; alert.style.color = "red";
+          }
+      });
+      // Handle password the same way if backend supports PUT /api/student/profile/password
+    });
+  </script>
+</body>
+</html>

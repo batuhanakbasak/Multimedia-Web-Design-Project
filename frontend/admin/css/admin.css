@@ -85,8 +85,7 @@ button {
 }
 
 .sidebar {
-  position: sticky;
-  top: 0;
+  position: relative;
   align-self: start;
   min-height: 100vh;
   padding: 1.25rem;
@@ -103,7 +102,7 @@ button {
   background: var(--sidebar-bg);
   color: var(--sidebar-text);
   box-shadow: 0 30px 60px rgba(8, 18, 22, 0.28);
-  overflow-y: auto;
+  overflow-y: hidden;
   overscroll-behavior: contain;
 }
 
@@ -273,8 +272,7 @@ button {
 }
 
 #navbar-root {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 20;
   padding: 1.25rem 1.5rem 0;
 }

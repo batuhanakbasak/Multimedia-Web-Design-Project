@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Participants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../admin/css/admin.css" />
+</head>
+<body data-page="participants">
+  <div class="admin-shell">
+    <aside class="sidebar" id="sidebar-root"></aside>
+
+    <div class="admin-main">
+      <header id="navbar-root"></header>
+
+      <main class="page-content">
+        <section class="page-banner">
+          <div>
+            <p class="eyebrow" id="eventSub">Event Audience</p>
+            <h3 id="eventTitle">Loading Event Details...</h3>
+            <p class="section-copy">List of all students who have registered for this event.</p>
+          </div>
+          <div style="margin-top: 1rem;">
+             <a href="dashboard.html" class="button" style="background:var(--text-main);color:white;text-decoration:none;padding:10px 20px;border-radius:12px;">Back to Events</a>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel" style="grid-column: 1 / -1;">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Attendees</p>
+                <h3>Participant Roster</h3>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Student Name</th>
+                    <th>Email</th>
+                    <th>Registered At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="participants-body">
+                   <tr><td colspan="3"><div class="empty-inline">Loading participants...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="./js/runtime-config.js"></script>
+  <script type="module">
+    import { requireAuth, renderSidebar, renderNavbar, escapeHtml, formatDate } from './js/app.js';
+    import { apiRequest } from './js/api.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      requireAuth();
+      renderSidebar('dashboard');
+      renderNavbar('Event Participants');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const eventId = urlParams.get('id');
+
+      if (!eventId) {
+          document.getElementById('eventTitle').textContent = "Invalid Event";
+          document.getElementById('participants-body').innerHTML = `<tr><td colspan="3"><div class="empty-inline">No event ID provided. Please return to dashboard.</div></td></tr>`;
+          return;
+      }
+
+      try {
+        const response = await apiRequest(`/organizer/events/${eventId}/participants`);
+        const participants = response.data || [];
+
+        document.getElementById('eventTitle').textContent = `Participating Students`;
+
+        const tbody = document.getElementById('participants-body');
+        if (!participants || participants.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3"><div class="empty-inline">No one has registered for this event yet.</div></td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = participants.map(p => `
+          <tr>
+            <td><strong>${escapeHtml(p.full_name || p.name)}</strong></td>
+            <td>${escapeHtml(p.email)}</td>
+            <td>${formatDate(p.registered_at || p.joined_at || p.created_at)}</td>
+            <td>
+                <button class="button button-small remove-participant-btn" data-userid="${p.id || p.user_id}" style="background:transparent; border:1px solid #bb4f4f; color:#bb4f4f;">Remove</button>
+            </td>
+          </tr>
+        `).join('');
+
+        // Attach listeners to remove participant buttons
+        document.querySelectorAll('.remove-participant-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const userId = e.target.getAttribute('data-userid');
+                if(confirm("Are you sure you want to remove this participant from the event?")) {
+                     try {
+                         await apiRequest(`/organizer/events/${eventId}/participants/${userId}`, { method: 'DELETE' });
+                         window.location.reload();
+                     } catch(err) {
+                         alert(err.message);
+                     }
+                }
+            });
+        });
+      } catch (err) {
+         document.getElementById('participants-body').innerHTML = `<tr><td colspan="3"><div class="empty-inline error" style="color:red;">Error loading participants: ${escapeHtml(err.message)}</div></td></tr>`;
+      }
+    });
+  </script>
+</body>
+</html>

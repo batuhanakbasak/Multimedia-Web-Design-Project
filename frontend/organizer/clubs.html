@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Clubs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../admin/css/admin.css" />
+</head>
+<body data-page="clubs">
+  <div class="admin-shell">
+    <aside class="sidebar" id="sidebar-root"></aside>
+    <div class="admin-main">
+      <header id="navbar-root"></header>
+      <main class="page-content">
+        <section class="page-banner">
+          <div>
+            <p class="eyebrow">Clubs Overview</p>
+            <h3>Manage My Clubs</h3>
+            <p class="section-copy">View the clubs you are part of and manage their members.</p>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel" style="grid-column: 1 / -1;">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">My Affiliations</p>
+                <h3>University Clubs</h3>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Club Name</th>
+                    <th>Role</th>
+                    <th>Joined At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="clubs-body">
+                   <tr><td colspan="4"><div class="empty-inline">Loading clubs...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="./js/runtime-config.js"></script>
+  <script type="module">
+    import { requireAuth, renderSidebar, renderNavbar, escapeHtml, formatDate } from './js/app.js';
+    import { apiRequest } from './js/api.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      requireAuth();
+      renderSidebar('clubs');
+      renderNavbar('Manage Clubs');
+
+      try {
+        const response = await apiRequest('/organizer/clubs');
+        const clubs = response.data || [];
+
+        const tbody = document.getElementById('clubs-body');
+        if (!clubs || clubs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4"><div class="empty-inline">You are not a member of any clubs yet.</div></td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = clubs.map(club => `
+          <tr>
+            <td><strong>${escapeHtml(club.name)}</strong></td>
+            <td><span class="badge" style="background:var(--text-main);color:white;">${escapeHtml(club.member_role)}</span></td>
+            <td>${formatDate(club.joined_at)}</td>
+            <td>
+                ${club.member_role === 'manager'
+                   ? `<a href="club-members.html?id=${club.id}&name=${encodeURIComponent(club.name)}" class="button button-small" style="background:transparent;border:1px solid var(--text-main);color:var(--text-main);">Manage Members</a>`
+                   : '<span style="color:var(--text-soft);font-size:0.85rem;">View Only</span>'
+                }
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+         document.getElementById('clubs-body').innerHTML = `<tr><td colspan="4"><div class="empty-inline error" style="color:red;">Error loading clubs: ${escapeHtml(err.message)}</div></td></tr>`;
+      }
+    });
+  </script>
+</body>
+</html>
