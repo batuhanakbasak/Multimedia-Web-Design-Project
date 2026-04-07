@@ -30,19 +30,19 @@
                <h3 style="font-family:'Space Grotesk'; margin:0 0 1rem 0;">Add / Promote Member</h3>
                <form id="addMemberForm" style="display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap;">
                    <div style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem; color: var(--text-soft); font-weight: 600;">
-                       <label>User ID</label>
-                       <input type="number" name="user_id" placeholder="Enter User ID" required style="padding: 0.8rem; border: 1px solid var(--border); border-radius: 12px; font-family: inherit;">
+                       <label for="club-member-user-id">User ID</label>
+                       <input id="club-member-user-id" type="number" name="user_id" placeholder="Enter User ID" required style="padding: 0.8rem; border: 1px solid var(--border); border-radius: 12px; font-family: inherit;">
                    </div>
                    <div style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem; color: var(--text-soft); font-weight: 600;">
-                       <label>Role</label>
-                       <select name="member_role" required style="padding: 0.8rem; border: 1px solid var(--border); border-radius: 12px; font-family: inherit;">
+                       <label for="club-member-role">Role</label>
+                       <select id="club-member-role" name="member_role" required style="padding: 0.8rem; border: 1px solid var(--border); border-radius: 12px; font-family: inherit;">
                            <option value="member">Member</option>
                            <option value="manager">Manager</option>
                        </select>
                    </div>
                    <button type="submit" class="button" style="background:var(--text-main);color:white;padding:0.8rem 1.5rem;border-radius:12px;">Add</button>
                </form>
-               <div id="addResult" style="margin-top: 0.5rem; font-weight: 600;"></div>
+               <div id="addResult" role="status" aria-live="polite" style="margin-top: 0.5rem; font-weight: 600;"></div>
            </article>
         </section>
 

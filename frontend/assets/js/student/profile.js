@@ -12,30 +12,10 @@ import {
 let currentProfile = null;
 
 const requestPasswordChange = async (payload) => {
-  const attempts = [
-    { method: 'PUT', path: '/student/profile/password' },
-    { method: 'POST', path: '/student/profile/password' },
-    { method: 'PUT', path: '/student/password' },
-    { method: 'POST', path: '/student/password' },
-  ];
-  let lastError = null;
-
-  for (const attempt of attempts) {
-    try {
-      return await apiRequest(attempt.path, {
-        method: attempt.method,
-        body: payload,
-      });
-    } catch (error) {
-      lastError = error;
-
-      if (error?.status !== 404) {
-        throw error;
-      }
-    }
-  }
-
-  throw lastError || new Error('Unable to update your password.');
+  return apiRequest('/student/profile/password', {
+    method: 'PUT',
+    body: payload,
+  });
 };
 
 const renderAvatar = (profile) => {

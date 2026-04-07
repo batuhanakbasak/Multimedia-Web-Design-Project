@@ -21,9 +21,6 @@ export const renderSidebar = (activeNav, admin) => `
         <p class="eyebrow">University Events</p>
         <h1>Admin Panel</h1>
       </div>
-      <button type="button" class="icon-button sidebar-close" data-sidebar-close aria-label="Close sidebar">
-        <span></span>
-      </button>
     </div>
 
     <div class="sidebar-profile">

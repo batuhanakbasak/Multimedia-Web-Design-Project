@@ -12,7 +12,7 @@ const resolveApiBaseUrl = () => {
   }
 
   const metaConfigUrl = document
-    .querySelector('meta[name="admin-api-base-url"]')
+    .querySelector('meta[name="organizer-api-base-url"]')
     ?.getAttribute('content');
 
   if (metaConfigUrl && normalizeBaseUrl(metaConfigUrl)) {
@@ -111,6 +111,7 @@ export const apiRequest = async (path, options = {}) => {
     if (response.status === 401) {
       localStorage.removeItem(ORGANIZER_TOKEN_KEY);
       localStorage.removeItem('organizer_profile');
+      localStorage.removeItem('organizer_refresh_token');
       window.location.href = './organizer-login.html?reason=session';
       return;
     }

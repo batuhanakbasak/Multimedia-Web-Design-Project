@@ -34,12 +34,17 @@ const developmentOrigins =
       ];
 
 const allowedOrigins = new Set([...configuredOrigins, ...developmentOrigins]);
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction && configuredOrigins.length === 0) {
+  throw new Error('CORS_ORIGIN must be configured in production');
+}
 
 app.set('trust proxy', true);
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.size === 0 || allowedOrigins.has(origin)) {
+      if (!origin || allowedOrigins.has(origin)) {
         callback(null, true);
         return;
       }
