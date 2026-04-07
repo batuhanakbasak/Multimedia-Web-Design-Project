@@ -170,6 +170,7 @@ All student routes require a bearer token from an account with `role = student`.
 | DELETE | `/api/student/favorites/:eventId` | Remove event from favorites. |
 | GET | `/api/student/profile` | Get student profile. |
 | PUT | `/api/student/profile` | Update student profile. |
+| PUT | `/api/student/profile/password` | Change student password. |
 | GET | `/api/student/clubs` | List active clubs through the student area. |
 | GET | `/api/student/clubs/:id` | Get active club detail through the student area. |
 
@@ -188,6 +189,15 @@ search, keyword, category, date, status, sort, organizer_id, club_id, page, limi
 }
 ```
 
+### Student Change Password Body
+
+```json
+{
+  "current_password": "OldPassword123!",
+  "new_password": "NewPassword123!"
+}
+```
+
 ### Join Event Success Shape
 
 ```json
@@ -203,6 +213,22 @@ search, keyword, category, date, status, sort, organizer_id, club_id, page, limi
   }
 }
 ```
+
+### Student Event List Notes
+
+Student event/favorite/joined-event responses may also include:
+
+- `joined_count`
+- `is_joined`
+- `is_favorite`
+- `timeline_status`
+
+`timeline_status` is intended for frontend display and can return values such as:
+
+- `active`
+- `passed`
+- `cancelled`
+- `completed`
 
 ## Organizer Routes
 

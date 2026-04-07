@@ -1,148 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Event Detail | IBU Connect</title>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../admin/css/admin.css" />
-  <style>
-    .detail-hero { width: 100%; height: 350px; border-radius: 30px; object-fit: cover; margin-bottom: 2rem; box-shadow: var(--shadow-soft); }
-    .detail-grid { display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 2rem; }
-    .info-list { display: flex; flex-direction: column; gap: 1rem; }
-    .info-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.6); border-radius: 16px; border: 1px solid var(--border); }
-    .info-icon { font-size: 24px; }
-  </style>
-</head>
-<body data-page="event-detail">
-  <div class="admin-shell">
-    <aside class="sidebar" id="sidebar-root"></aside>
-    <div class="admin-main">
-      <header id="navbar-root"></header>
-      <main class="page-content">
-        <section id="event-loading" class="empty-state">Loading event details...</section>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Detail | IBU Connect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/global.css" />
+    <link rel="stylesheet" href="../assets/css/student.css" />
+  </head>
+  <body class="student-portal">
+    <div class="student-shell">
+      <aside class="student-sidebar" data-student-sidebar></aside>
 
-        <div id="event-content" style="display:none;">
-          <img id="eventImg" src="" class="detail-hero" alt="Event Banner">
+      <div class="student-main">
+        <header class="student-topbar" data-student-topbar></header>
 
-          <div class="detail-grid">
-            <article class="panel">
-              <div class="panel-head">
-                 <div>
-                    <p class="eyebrow" id="eventCat">Category</p>
-                    <h3 id="eventTitle">Event Title</h3>
-                 </div>
-              </div>
-              <p id="eventDesc" class="section-copy" style="font-size: 1.1rem; line-height: 1.8;">Description goes here...</p>
-            </article>
-
-            <article class="panel">
-              <h3 style="font-family:'Space Grotesk'; margin-bottom:1.5rem;">Event Information</h3>
-              <div class="info-list">
-                <div class="info-item">
-                  <span class="info-icon">📅</span>
-                  <div>
-                    <p class="eyebrow">Date & Time</p>
-                    <strong id="eventDate">Oct 20, 2026</strong>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <span class="info-icon">📍</span>
-                  <div>
-                    <p class="eyebrow">Location</p>
-                    <strong id="eventLoc">Campus Hall</strong>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <span class="info-icon">🛡️</span>
-                  <div>
-                    <p class="eyebrow">Club</p>
-                    <strong id="eventClub">IBU Robotics</strong>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <span class="info-icon">👥</span>
-                  <div>
-                    <p class="eyebrow">Quota</p>
-                    <strong id="eventQuota">0 / 100</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div style="margin-top: 2rem;">
-                <button id="joinBtn" class="button button-block" style="background:var(--text-main); color:white; font-size:1.1rem; padding: 1rem;">Join Event</button>
-                <p id="joinStatus" style="text-align:center; margin-top:1rem; font-weight:600; display:none;"></p>
-              </div>
-            </article>
-          </div>
-        </div>
-      </main>
+        <main class="student-content">
+          <section data-event-detail></section>
+        </main>
+      </div>
     </div>
-  </div>
 
-  <script src="./js/runtime-config.js"></script>
-  <script type="module">
-    import { requireAuth, renderSidebar, renderNavbar, escapeHtml, formatDate } from './js/app.js';
-    import { apiRequest } from './js/api.js';
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      requireAuth();
-      renderSidebar('dashboard');
-      renderNavbar('Event details');
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const eventId = urlParams.get('id');
-
-      if (!eventId) { window.location.href = 'dashboard.html'; return; }
-
-      try {
-        const response = await apiRequest(`/student/events/${eventId}`);
-        const ev = response.data;
-
-        document.getElementById('eventTitle').textContent = escapeHtml(ev.title);
-        document.getElementById('eventCat').textContent = escapeHtml(ev.category);
-        document.getElementById('eventDesc').textContent = escapeHtml(ev.description);
-        document.getElementById('eventDate').textContent = formatDate(ev.event_date);
-        document.getElementById('eventLoc').textContent = escapeHtml(ev.location);
-        document.getElementById('eventClub').textContent = escapeHtml(ev.club?.name || 'IBU Connect');
-        document.getElementById('eventQuota').textContent = `${ev.joined_count || 0} / ${ev.quota}`;
-        document.getElementById('eventImg').src = ev.image_url || 'https://via.placeholder.com/1200x400?text=IBU+Connect+Event';
-
-        const joinBtn = document.getElementById('joinBtn');
-        if (ev.is_joined) {
-          joinBtn.textContent = 'Already Joined';
-          joinBtn.disabled = true;
-          joinBtn.style.opacity = '0.6';
-        }
-
-        document.getElementById('event-loading').style.display = 'none';
-        document.getElementById('event-content').style.display = 'block';
-
-        joinBtn.addEventListener('click', async () => {
-          const status = document.getElementById('joinStatus');
-          joinBtn.disabled = true;
-          joinBtn.textContent = 'Processing...';
-
-          try {
-            await apiRequest(`/student/events/${eventId}/join`, { method: 'POST' });
-            status.textContent = 'Successfully joined! See you there! 🎉';
-            status.style.color = 'green';
-            status.style.display = 'block';
-            joinBtn.textContent = 'Waitlisted / Joined';
-            setTimeout(() => window.location.reload(), 2000);
-          } catch (err) {
-            status.textContent = err.message || 'Joining failed.';
-            status.style.color = 'red';
-            status.style.display = 'block';
-            joinBtn.disabled = false;
-            joinBtn.textContent = 'Join Event';
-          }
-        });
-
-      } catch (err) {
-        document.getElementById('event-loading').innerHTML = `<div style="color:red;">Error: ${escapeHtml(err.message)}</div>`;
-      }
-    });
-  </script>
-</body>
+    <script src="./js/runtime-config.js"></script>
+    <script type="module" src="../assets/js/student/event-detail.js"></script>
+  </body>
 </html>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Events | IBU Connect</title>
+    <title>Clubs | IBU Connect</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -23,26 +23,21 @@
         <main class="student-content">
           <section class="student-hero">
             <div class="student-hero__content">
-              <p class="eyebrow">Participation</p>
-              <h1>Everything you have joined so far.</h1>
+              <p class="eyebrow">Clubs</p>
+              <h1>Explore active clubs around campus.</h1>
               <p>
-                Review your upcoming schedule, open any event detail page, or leave an event
-                directly from this list.
+                Browse club descriptions, see how active they are, and open any club to view its
+                managers and events.
               </p>
-            </div>
-
-            <div class="student-hero__actions">
-              <a class="button" href="./events.html">Browse more events</a>
             </div>
           </section>
 
-          <section data-my-events-grid></section>
-          <section data-my-events-pagination></section>
+          <section class="card-grid" data-clubs-grid></section>
         </main>
       </div>
     </div>
 
     <script src="./js/runtime-config.js"></script>
-    <script type="module" src="../assets/js/student/my-events.js"></script>
+    <script type="module" src="../assets/js/student/clubs.js"></script>
   </body>
 </html>
