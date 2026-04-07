@@ -73,10 +73,10 @@
 
         tbody.innerHTML = clubs.map(club => `
           <tr>
-            <td><strong>${escapeHtml(club.name)}</strong></td>
-            <td><span class="badge" style="background:var(--text-main);color:white;">${escapeHtml(club.member_role)}</span></td>
-            <td>${formatDate(club.joined_at)}</td>
-            <td>
+            <td data-label="Club Name"><strong>${escapeHtml(club.name)}</strong></td>
+            <td data-label="Role"><span class="badge" style="background:var(--text-main);color:white;">${escapeHtml(club.member_role)}</span></td>
+            <td data-label="Joined At">${formatDate(club.joined_at)}</td>
+            <td data-label="Actions">
                 ${club.member_role === 'manager' 
                    ? `<a href="club-members.html?id=${club.id}&name=${encodeURIComponent(club.name)}" class="button button-small" style="background:transparent;border:1px solid var(--text-main);color:var(--text-main);">Manage Members</a>`
                    : '<span style="color:var(--text-soft);font-size:0.85rem;">View Only</span>'

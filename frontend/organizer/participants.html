@@ -46,7 +46,7 @@
                   </tr>
                 </thead>
                 <tbody id="participants-body">
-                   <tr><td colspan="3"><div class="empty-inline">Loading participants...</div></td></tr>
+                   <tr><td colspan="4"><div class="empty-inline">Loading participants...</div></td></tr>
                 </tbody>
               </table>
             </div>
@@ -71,7 +71,7 @@
 
       if (!eventId) {
           document.getElementById('eventTitle').textContent = "Invalid Event";
-          document.getElementById('participants-body').innerHTML = `<tr><td colspan="3"><div class="empty-inline">No event ID provided. Please return to dashboard.</div></td></tr>`;
+          document.getElementById('participants-body').innerHTML = `<tr><td colspan="4"><div class="empty-inline">No event ID provided. Please return to dashboard.</div></td></tr>`;
           return;
       }
 
@@ -83,16 +83,16 @@
         
         const tbody = document.getElementById('participants-body');
         if (!participants || participants.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3"><div class="empty-inline">No one has registered for this event yet.</div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4"><div class="empty-inline">No one has registered for this event yet.</div></td></tr>`;
             return;
         }
 
         tbody.innerHTML = participants.map(p => `
           <tr>
-            <td><strong>${escapeHtml(p.full_name || p.name)}</strong></td>
-            <td>${escapeHtml(p.email)}</td>
-            <td>${formatDate(p.registered_at || p.joined_at || p.created_at)}</td>
-            <td>
+            <td data-label="Student Name"><strong>${escapeHtml(p.full_name || p.name)}</strong></td>
+            <td data-label="Email">${escapeHtml(p.email)}</td>
+            <td data-label="Registered At">${formatDate(p.registered_at || p.joined_at || p.created_at)}</td>
+            <td data-label="Actions">
                 <button class="button button-small remove-participant-btn" data-userid="${p.id || p.user_id}" style="background:transparent; border:1px solid #bb4f4f; color:#bb4f4f;">Remove</button>
             </td>
           </tr>

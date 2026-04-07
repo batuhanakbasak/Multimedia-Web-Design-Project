@@ -12,6 +12,10 @@
       .form-field input, .form-field select, .form-field textarea { padding: 0.85rem; border: 1px solid var(--border); border-radius: 12px; background: rgba(255, 255, 255, 0.9); width:100%; font-family: inherit;}
       .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--text-main); box-shadow: 0 0 0 4px rgba(23, 36, 43, 0.12); }
       .full-width { grid-column: 1 / -1; }
+      @media (max-width: 760px) {
+          .form-grid { grid-template-columns: 1fr; gap: 1rem; }
+          .full-width { grid-column: auto; }
+      }
   </style>
 </head>
 <body data-page="create-event">

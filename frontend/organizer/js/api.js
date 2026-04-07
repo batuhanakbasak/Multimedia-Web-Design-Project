@@ -88,10 +88,10 @@ export const apiRequest = async (path, options = {}) => {
     const currentOrigin = getCurrentOriginLabel();
     const isFileOrigin = currentOrigin === 'file://';
     const hint = isFileOrigin
-      ? 'Open the frontend through a local static server such as http://localhost:5500/login.html.'
+      ? 'Open the frontend through a local static server such as http://localhost:5500/organizer/organizer-login.html.'
       : `Allow ${currentOrigin} in backend CORS settings and confirm that ${API_BASE_URL} is reachable.`;
 
-    const requestError = new Error(`Unable to reach the admin API. ${hint}`);
+    const requestError = new Error(`Unable to reach the organizer API. ${hint}`);
     requestError.status = 0;
     requestError.code = 'NETWORK_ERROR';
     requestError.payload = null;
@@ -111,7 +111,7 @@ export const apiRequest = async (path, options = {}) => {
     if (response.status === 401) {
       localStorage.removeItem(ORGANIZER_TOKEN_KEY);
       localStorage.removeItem('organizer_profile');
-      window.location.href = './login.html?reason=session';
+      window.location.href = './organizer-login.html?reason=session';
       return;
     }
 
