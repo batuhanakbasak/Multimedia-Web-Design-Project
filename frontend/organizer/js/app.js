@@ -2,10 +2,31 @@
 import { getOrganizerToken, getOrganizerProfile, logoutOrganizer } from './auth.js';
 import { apiRequest } from './api.js';
 
+const setupSidebarInteractions = () => {
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+    }
+    const openBtn = document.querySelector('[data-sidebar-toggle]');
+    const closeBtn = document.querySelector('[data-sidebar-close]');
+
+    const closeSidebar = () => document.body.classList.remove('sidebar-open');
+    const openSidebar = () => document.body.classList.add('sidebar-open');
+
+    overlay?.addEventListener('click', closeSidebar);
+    closeBtn?.addEventListener('click', closeSidebar);
+    openBtn?.addEventListener('click', openSidebar);
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 960) closeSidebar();
+    });
+};
+
 export const requireAuth = () => {
     const token = getOrganizerToken();
     if (!token) {
-        window.location.href = './login.html?reason=session';
+        window.location.href = './organizer-login.html?reason=session';
     }
     return getOrganizerProfile();
 };
@@ -13,9 +34,11 @@ export const requireAuth = () => {
 export const renderSidebar = (activeNav) => {
     const root = document.getElementById('sidebar-root');
     if (!root) return;
-
+    
     const profile = getOrganizerProfile() || { full_name: 'Organizer', email: '' };
-    const initials = profile.full_name.substring(0,2).toUpperCase();
+    const initials = ((profile.full_name || 'Organizer').trim().slice(0, 2) || 'OR').toUpperCase();
+    const safeName = escapeHtml(profile.full_name || 'Organizer');
+    const safeEmail = escapeHtml(profile.email || '');
 
     const links = [
         { key: 'dashboard', label: 'Dashboard', href: 'dashboard.html' },
@@ -32,12 +55,15 @@ export const renderSidebar = (activeNav) => {
                     <p class="eyebrow">IBU Connect</p>
                     <h1>Organizer</h1>
                 </div>
+                <button type="button" class="icon-button sidebar-close mobile-only" data-sidebar-close aria-label="Close menu">
+                    <span></span>
+                </button>
             </div>
             <div class="sidebar-profile">
                 <div class="avatar-chip">${initials}</div>
                 <div class="sidebar-profile-copy">
-                    <strong>${profile.full_name}</strong>
-                    <p>${profile.email}</p>
+                    <strong>${safeName}</strong>
+                    <p>${safeEmail}</p>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -52,16 +78,27 @@ export const renderSidebar = (activeNav) => {
     document.getElementById('logoutBtn')?.addEventListener('click', () => {
         logoutOrganizer();
     });
+    setupSidebarInteractions();
 };
 
 export const renderNavbar = (title) => {
     const root = document.getElementById('navbar-root');
     if (!root) return;
     root.innerHTML = `
-        <div class="navbar-content">
-            <h2 class="navbar-title">${title}</h2>
+        <div class="topbar">
+            <div class="topbar-title-group">
+                <button type="button" class="icon-button mobile-only" data-sidebar-toggle aria-label="Open menu">
+                    <span></span>
+                </button>
+                <h2>${escapeHtml(title)}</h2>
+            </div>
+            <div class="topbar-actions">
+                <button type="button" class="button button-secondary topbar-logout desktop-only" id="topbarLogoutBtn">Log Out</button>
+            </div>
         </div>
     `;
+    document.getElementById('topbarLogoutBtn')?.addEventListener('click', logoutOrganizer);
+    setupSidebarInteractions();
 };
 
 export const escapeHtml = (unsafe) => {

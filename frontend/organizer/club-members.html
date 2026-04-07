@@ -28,7 +28,7 @@
         <section class="content-grid" style="margin-bottom: 2rem;">
            <article class="panel" style="grid-column: 1 / -1; max-width:600px;">
                <h3 style="font-family:'Space Grotesk'; margin:0 0 1rem 0;">Add / Promote Member</h3>
-               <form id="addMemberForm" style="display:flex; gap:1rem; align-items:flex-end;">
+               <form id="addMemberForm" style="display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap;">
                    <div style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem; color: var(--text-soft); font-weight: 600;">
                        <label>User ID</label>
                        <input type="number" name="user_id" placeholder="Enter User ID" required style="padding: 0.8rem; border: 1px solid var(--border); border-radius: 12px; font-family: inherit;">
@@ -102,7 +102,7 @@
             const response = await apiRequest(`/organizer/clubs/${clubId}/members`);
             const members = response.data || [];
             const tbody = document.getElementById('members-body');
-
+            
             if (!members || members.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4"><div class="empty-inline">No members found.</div></td></tr>`;
                 return;
@@ -110,10 +110,10 @@
 
             tbody.innerHTML = members.map(m => `
               <tr>
-                <td><strong>${escapeHtml(m.full_name)}</strong><br><span style="color:var(--text-soft);font-size:0.85rem;">${escapeHtml(m.email)} (ID: ${m.id})</span></td>
-                <td><span class="badge" style="background:${m.member_role === 'manager' ? 'var(--text-main)': '#ccc'};color:${m.member_role === 'manager' ? 'white': 'black'};">${escapeHtml(m.member_role)}</span></td>
-                <td>${formatDate(m.joined_at)}</td>
-                <td>
+                <td data-label="User / Email"><strong>${escapeHtml(m.full_name)}</strong><br><span style="color:var(--text-soft);font-size:0.85rem;">${escapeHtml(m.email)} (ID: ${m.id})</span></td>
+                <td data-label="Status"><span class="badge" style="background:${m.member_role === 'manager' ? 'var(--text-main)': '#ccc'};color:${m.member_role === 'manager' ? 'white': 'black'};">${escapeHtml(m.member_role)}</span></td>
+                <td data-label="Joined At">${formatDate(m.joined_at)}</td>
+                <td data-label="Actions">
                    <button class="button button-small remove-btn" data-id="${m.id}" style="background:transparent;border:1px solid #bb4f4f;color:#bb4f4f;">Remove</button>
                 </td>
               </tr>

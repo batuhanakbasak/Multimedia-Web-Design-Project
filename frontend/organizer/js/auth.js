@@ -6,7 +6,13 @@ export const getOrganizerToken = () => localStorage.getItem(ORGANIZER_TOKEN_KEY)
 
 export const getOrganizerProfile = () => {
   const raw = localStorage.getItem(ORGANIZER_PROFILE_KEY);
-  return raw ? JSON.parse(raw) : null;
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    localStorage.removeItem(ORGANIZER_PROFILE_KEY);
+    return null;
+  }
 };
 
 export const saveOrganizerSession = ({ token, organizer }) => {
@@ -20,7 +26,7 @@ export const clearOrganizerSession = () => {
 };
 
 export const redirectToLogin = (reason = '') => {
-  const loginUrl = new URL('./login.html', window.location.href);
+  const loginUrl = new URL('./organizer-login.html', window.location.href);
   if (reason) loginUrl.searchParams.set('reason', reason);
   window.location.href = loginUrl.toString();
 };
@@ -38,11 +44,25 @@ const renderLoginMessage = (message, type = 'error') => {
   messageBox.hidden = false;
 };
 
+const renderReasonMessage = () => {
+  const reason = new URLSearchParams(window.location.search).get('reason');
+  if (!reason) return;
+
+  if (reason === 'session') {
+    renderLoginMessage('Your session expired. Please sign in again.', 'info');
+    return;
+  }
+  if (reason === 'signed-out') {
+    renderLoginMessage('You have signed out successfully.', 'success');
+  }
+};
+
 const initializeLoginPage = () => {
   const form = document.querySelector('[data-login-form]');
   if (!form) return;
 
   if (getOrganizerToken()) { window.location.href = './dashboard.html'; return; }
+  renderReasonMessage();
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -65,8 +85,9 @@ const initializeLoginPage = () => {
       window.location.href = './dashboard.html';
     } catch (error) {
       renderLoginMessage(error.message || 'Login failed.');
+    } finally {
       submitButton.disabled = false;
-      submitButton.textContent = 'Sign In';
+      submitButton.textContent = 'Sign In as Organizer';
     }
   });
 };
