@@ -1,32 +1,67 @@
+export const STUDENT_TOKEN_KEY = 'student_token';
+export const STUDENT_PROFILE_KEY = 'student_profile';
 
-const Auth = {
-  setToken(token) { localStorage.setItem('token', token); },
-  getToken() { return localStorage.getItem('token'); },
-  
-  setUser(user) { localStorage.setItem('user', JSON.stringify(user)); },
-  getUser() {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
-  },
+export const getStudentToken = () => localStorage.getItem(STUDENT_TOKEN_KEY);
 
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '../organizer/organizer-login.html';
-  },
-
-  isLoggedIn() { return !!this.getToken(); },
-  
-  hasRole(role) {
-    const user = this.getUser();
-    return user && user.role === role;
+export const getStudentProfile = () => {
+  try {
+    const value = localStorage.getItem(STUDENT_PROFILE_KEY);
+    return value ? JSON.parse(value) : null;
+  } catch (error) {
+    return null;
   }
 };
 
-function guardOrganizer() {
-  if (!Auth.isLoggedIn() || !Auth.hasRole('organizer')) {
-    window.location.href = 'organizer-login.html';
-    return false;
+export const saveStudentSession = ({ accessToken, user }) => {
+  if (accessToken) {
+    localStorage.setItem(STUDENT_TOKEN_KEY, accessToken);
   }
-  return true;
-}
+
+  if (user) {
+    localStorage.setItem(STUDENT_PROFILE_KEY, JSON.stringify(user));
+  }
+};
+
+export const saveStudentSessionFromPayload = (payload) => {
+  saveStudentSession({
+    accessToken: payload?.access_token,
+    user: payload?.user,
+  });
+};
+
+export const updateStoredStudentProfile = (profile) => {
+  if (!profile) {
+    return;
+  }
+
+  localStorage.setItem(STUDENT_PROFILE_KEY, JSON.stringify(profile));
+};
+
+export const clearStudentSession = () => {
+  localStorage.removeItem(STUDENT_TOKEN_KEY);
+  localStorage.removeItem(STUDENT_PROFILE_KEY);
+};
+
+export const isStudentProfile = (profile) => Boolean(profile && profile.role === 'student');
+
+export const hasStudentSession = () => Boolean(getStudentToken() && isStudentProfile(getStudentProfile()));
+
+export const redirectToStudentLogin = (reason = '') => {
+  const url = new URL('./login.html', window.location.href);
+
+  if (reason) {
+    url.searchParams.set('reason', reason);
+  }
+
+  window.location.href = url.toString();
+};
+
+export const redirectToStudentDashboard = () => {
+  const url = new URL('./dashboard.html', window.location.href);
+  window.location.href = url.toString();
+};
+
+export const logoutStudent = () => {
+  clearStudentSession();
+  redirectToStudentLogin('logout');
+};

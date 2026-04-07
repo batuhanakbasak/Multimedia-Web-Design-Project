@@ -37,7 +37,7 @@
                    <div id="name" class="profile-name">Organizer Name</div>
                    <div id="email" style="color: var(--text-soft); margin-bottom:1rem;">email@ibu.edu.ba</div>
                    <div class="profile-role">Event Organizer</div>
-                   
+
                    <form id="profileForm" style="display:flex; flex-direction:column; gap:1rem; width:100%;">
                        <div id="profileAlert" style="display:none; padding:10px; border-radius:8px;"></div>
                        <div class="form-field">
@@ -84,7 +84,7 @@
       try {
         const response = await apiRequest('/organizer/profile');
         const profile = response.data || auth;
-        
+
         document.getElementById('name').textContent = escapeHtml(profile.full_name || 'Organizer');
         document.getElementById('email').textContent = escapeHtml(profile.email || '');
         if (profile.full_name) {
@@ -103,7 +103,7 @@
           try {
              await apiRequest('/organizer/profile', {
                  method: 'PUT',
-                 body: { 
+                 body: {
                      full_name: e.target.full_name.value,
                      profile_image: null // Add image if needed
                  }
@@ -126,7 +126,7 @@
           try {
              await apiRequest('/organizer/profile/password', {
                  method: 'PUT',
-                 body: { 
+                 body: {
                      current_password: e.target.current_password.value,
                      new_password: e.target.new_password.value
                  }
