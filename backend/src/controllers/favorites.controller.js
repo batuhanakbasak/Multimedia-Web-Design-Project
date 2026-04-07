@@ -6,6 +6,15 @@ const { hasEventsMetadataColumn, isMissingColumnError } = require('../utils/sche
 
 const resolveEventId = (req) => Number.parseInt(req.params.eventId || req.params.id, 10);
 
+const TIMELINE_STATUS_SELECT = `
+  CASE
+    WHEN e.status = 'cancelled' THEN 'cancelled'
+    WHEN e.event_date < NOW() THEN 'passed'
+    WHEN e.status = 'completed' THEN 'completed'
+    ELSE e.status
+  END AS timeline_status,
+`;
+
 const listFavorites = asyncHandler(async (req, res) => {
   const buildListFavoritesQuery = (hasMetadata) => `
     SELECT
@@ -18,8 +27,18 @@ const listFavorites = asyncHandler(async (req, res) => {
       e.image_url,
       e.quota,
       e.status,
+      ${TIMELINE_STATUS_SELECT}
       ${hasMetadata ? 'e.metadata,' : `'{}'::jsonb AS metadata,`}
       f.created_at AS favorited_at,
+      COALESCE(ep_stats.joined_count, 0) AS joined_count,
+      TRUE AS is_favorite,
+      EXISTS(
+        SELECT 1
+        FROM event_participants ep_user
+        WHERE ep_user.user_id = $1
+          AND ep_user.event_id = e.id
+          AND ep_user.status = 'joined'
+      ) AS is_joined,
       json_build_object(
         'id', o.id,
         'full_name', o.full_name,
@@ -39,6 +58,11 @@ const listFavorites = asyncHandler(async (req, res) => {
     JOIN events e ON e.id = f.event_id
     JOIN users o ON o.id = e.organizer_id
     LEFT JOIN clubs c ON c.id = e.club_id
+    LEFT JOIN (
+      SELECT event_id, COUNT(*) FILTER (WHERE status = 'joined')::int AS joined_count
+      FROM event_participants
+      GROUP BY event_id
+    ) ep_stats ON ep_stats.event_id = e.id
     WHERE f.user_id = $1
     ORDER BY f.created_at DESC
   `;

@@ -8,6 +8,15 @@ const { getEventDetail } = require('../utils/event-query');
 
 const resolveEventId = (req) => Number.parseInt(req.params.id || req.params.eventId, 10);
 
+const TIMELINE_STATUS_SELECT = `
+  CASE
+    WHEN e.status = 'cancelled' THEN 'cancelled'
+    WHEN e.event_date < NOW() THEN 'passed'
+    WHEN e.status = 'completed' THEN 'completed'
+    ELSE e.status
+  END AS timeline_status,
+`;
+
 const joinEvent = asyncHandler(async (req, res) => {
   const eventId = resolveEventId(req);
   const userId = req.user.id;
@@ -138,8 +147,17 @@ const listJoinedEvents = asyncHandler(async (req, res) => {
       e.image_url,
       e.quota,
       e.status,
+      ${TIMELINE_STATUS_SELECT}
       ${hasMetadata ? 'e.metadata,' : `'{}'::jsonb AS metadata,`}
       ep.joined_at,
+      COALESCE(ep_stats.joined_count, 0) AS joined_count,
+      TRUE AS is_joined,
+      EXISTS(
+        SELECT 1
+        FROM favorites f
+        WHERE f.user_id = $1
+          AND f.event_id = e.id
+      ) AS is_favorite,
       json_build_object(
         'id', o.id,
         'full_name', o.full_name,
@@ -159,9 +177,18 @@ const listJoinedEvents = asyncHandler(async (req, res) => {
     JOIN events e ON e.id = ep.event_id
     JOIN users o ON o.id = e.organizer_id
     LEFT JOIN clubs c ON c.id = e.club_id
+    LEFT JOIN (
+      SELECT event_id, COUNT(*) FILTER (WHERE status = 'joined')::int AS joined_count
+      FROM event_participants
+      GROUP BY event_id
+    ) ep_stats ON ep_stats.event_id = e.id
     WHERE ep.user_id = $1
       AND ep.status = 'joined'
-    ORDER BY e.event_date ASC
+    ORDER BY
+      CASE WHEN e.event_date >= NOW() THEN 0 ELSE 1 END ASC,
+      CASE WHEN e.event_date >= NOW() THEN e.event_date END ASC,
+      CASE WHEN e.event_date < NOW() THEN e.event_date END DESC,
+      e.id DESC
     LIMIT $2
     OFFSET $3
   `;

@@ -77,10 +77,44 @@ const getSortClause = (sort = 'upcoming') => SORT_MAP[sort] || SORT_MAP.upcoming
 
 const buildMetadataSelect = (hasMetadata) => (hasMetadata ? 'e.metadata,' : `'{}'::jsonb AS metadata,`);
 
+const buildTimelineStatusSelect = (alias = 'e') => `
+  CASE
+    WHEN ${alias}.status = 'cancelled' THEN 'cancelled'
+    WHEN ${alias}.event_date < NOW() THEN 'passed'
+    WHEN ${alias}.status = 'completed' THEN 'completed'
+    ELSE ${alias}.status
+  END AS timeline_status,
+`;
+
+const buildUserFlagsSelect = (userParamIndex) => `
+  CASE
+    WHEN $${userParamIndex}::int IS NULL THEN FALSE
+    ELSE EXISTS(
+      SELECT 1
+      FROM favorites f
+      WHERE f.user_id = $${userParamIndex}
+        AND f.event_id = e.id
+    )
+  END AS is_favorite,
+  CASE
+    WHEN $${userParamIndex}::int IS NULL THEN FALSE
+    ELSE EXISTS(
+      SELECT 1
+      FROM event_participants p
+      WHERE p.user_id = $${userParamIndex}
+        AND p.event_id = e.id
+        AND p.status = 'joined'
+    )
+  END AS is_joined,
+`;
+
 const buildPaginatedEventsQueries = (filters = {}, options = {}, hasMetadata = false) => {
   const { page, limit, offset } = getPagination(filters);
   const { whereClause, values } = buildEventFilters(filters, options);
   const metadataSelect = buildMetadataSelect(hasMetadata);
+  const timelineStatusSelect = buildTimelineStatusSelect();
+  const userParamIndex = values.length + 1;
+  const userFlagsSelect = buildUserFlagsSelect(userParamIndex);
 
   const listQuery = `
     SELECT
@@ -95,10 +129,12 @@ const buildPaginatedEventsQueries = (filters = {}, options = {}, hasMetadata = f
       e.image_url,
       e.quota,
       e.status,
+      ${timelineStatusSelect}
       ${metadataSelect}
       e.created_at,
       e.updated_at,
       COALESCE(ep.joined_count, 0) AS joined_count,
+      ${userFlagsSelect}
       json_build_object(
         'id', o.id,
         'full_name', o.full_name,
@@ -124,8 +160,8 @@ const buildPaginatedEventsQueries = (filters = {}, options = {}, hasMetadata = f
     ) ep ON ep.event_id = e.id
     ${whereClause}
     ORDER BY ${getSortClause(filters.sort)}
-    LIMIT $${values.length + 1}
-    OFFSET $${values.length + 2}
+    LIMIT $${userParamIndex + 1}
+    OFFSET $${userParamIndex + 2}
   `;
 
   const countQuery = `
@@ -138,6 +174,7 @@ const buildPaginatedEventsQueries = (filters = {}, options = {}, hasMetadata = f
     listQuery,
     countQuery,
     values,
+    currentUserId: options.currentUserId ?? null,
     page,
     limit,
     offset,
@@ -145,14 +182,14 @@ const buildPaginatedEventsQueries = (filters = {}, options = {}, hasMetadata = f
 };
 
 const executePaginatedEventsQuery = async (db, filters = {}, options = {}, hasMetadata = false) => {
-  const { listQuery, countQuery, values, page, limit, offset } = buildPaginatedEventsQueries(
+  const { listQuery, countQuery, values, currentUserId, page, limit, offset } = buildPaginatedEventsQueries(
     filters,
     options,
     hasMetadata
   );
 
   const [listResult, countResult] = await Promise.all([
-    executeQuery(db, listQuery, [...values, limit, offset]),
+    executeQuery(db, listQuery, [...values, currentUserId, limit, offset]),
     executeQuery(db, countQuery, values),
   ]);
 
@@ -185,6 +222,7 @@ const buildEventDetailQuery = (hasMetadata = false) => {
       e.image_url,
       e.quota,
       e.status,
+      ${buildTimelineStatusSelect()}
       ${metadataSelect}
       e.created_at,
       e.updated_at,
