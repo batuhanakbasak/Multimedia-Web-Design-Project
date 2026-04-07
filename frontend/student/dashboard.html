@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard | IBU Connect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/global.css" />
+    <link rel="stylesheet" href="../assets/css/student.css" />
+  </head>
+  <body class="student-portal">
+    <div class="student-shell">
+      <aside class="student-sidebar" data-student-sidebar></aside>
+
+      <div class="student-main">
+        <header class="student-topbar" data-student-topbar></header>
+
+        <main class="student-content">
+          <section class="student-hero">
+            <div class="student-hero__content">
+              <p class="eyebrow">Overview</p>
+              <h1>Welcome back, <span data-greeting-name>Student</span>.</h1>
+              <p>
+                Keep track of joined events, saved favorites, and the next opportunities waiting on
+                campus.
+              </p>
+            </div>
+
+            <div class="student-hero__actions">
+              <a class="button" href="./events.html">Browse Events</a>
+              <a class="button-secondary" href="./my-events.html">My Events</a>
+              <a class="button-secondary" href="./favorites.html">Favorites</a>
+              <a class="button-secondary" href="./clubs.html">Clubs</a>
+            </div>
+          </section>
+
+          <section class="stats-grid">
+            <article class="stat-card">
+              <p class="eyebrow">Joined events</p>
+              <strong data-joined-count>0</strong>
+              <span>All events you are currently attending.</span>
+            </article>
+            <article class="stat-card">
+              <p class="eyebrow">Favorite events</p>
+              <strong data-favorite-count>0</strong>
+              <span>Events you saved for later.</span>
+            </article>
+            <article class="stat-card">
+              <p class="eyebrow">Upcoming joined</p>
+              <strong data-upcoming-count>0</strong>
+              <span>Upcoming events already on your calendar.</span>
+            </article>
+          </section>
+
+          <section class="dashboard-grid">
+            <article class="student-panel">
+              <div class="student-panel__head">
+                <div>
+                  <p class="eyebrow">Your plan</p>
+                  <h2>Upcoming joined events</h2>
+                  <p>Quick access to the events you already joined.</p>
+                </div>
+                <a class="button-secondary" href="./my-events.html">Open all</a>
+              </div>
+              <div data-upcoming-joined></div>
+            </article>
+
+            <article class="student-panel">
+              <div class="student-panel__head">
+                <div>
+                  <p class="eyebrow">Suggested for you</p>
+                  <h2>Recommended events</h2>
+                  <p>Fresh active events you have not joined yet.</p>
+                </div>
+                <a class="button-secondary" href="./events.html">See all events</a>
+              </div>
+              <div data-recommended-events></div>
+            </article>
+          </section>
+
+          <section class="student-panel">
+            <div class="student-panel__head">
+              <div>
+                <p class="eyebrow">Saved list</p>
+                <h2>Favorite events preview</h2>
+                <p>Events you marked as interesting and want to revisit.</p>
+              </div>
+              <a class="button-secondary" href="./favorites.html">Open favorites</a>
+            </div>
+            <div data-favorites-preview></div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="./js/runtime-config.js"></script>
+    <script type="module" src="../assets/js/student/dashboard.js"></script>
+  </body>
+</html>

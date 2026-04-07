@@ -170,6 +170,7 @@ All student routes require a bearer token from an account with `role = student`.
 | DELETE | `/api/student/favorites/:eventId` | Remove event from favorites. |
 | GET | `/api/student/profile` | Get student profile. |
 | PUT | `/api/student/profile` | Update student profile. |
+| PUT | `/api/student/profile/password` | Change student password. |
 | GET | `/api/student/clubs` | List active clubs through the student area. |
 | GET | `/api/student/clubs/:id` | Get active club detail through the student area. |
 
@@ -185,6 +186,15 @@ search, keyword, category, date, status, sort, organizer_id, club_id, page, limi
 {
   "full_name": "Student One Updated",
   "profile_image": "https://example.com/profile.jpg"
+}
+```
+
+### Student Change Password Body
+
+```json
+{
+  "current_password": "OldPassword123!",
+  "new_password": "NewPassword123!"
 }
 ```
 
@@ -204,6 +214,22 @@ search, keyword, category, date, status, sort, organizer_id, club_id, page, limi
 }
 ```
 
+### Student Event List Notes
+
+Student event/favorite/joined-event responses may also include:
+
+- `joined_count`
+- `is_joined`
+- `is_favorite`
+- `timeline_status`
+
+`timeline_status` is intended for frontend display and can return values such as:
+
+- `active`
+- `passed`
+- `cancelled`
+- `completed`
+
 ## Organizer Routes
 
 All organizer routes require a bearer token from an account with `role = organizer`.
@@ -212,13 +238,19 @@ All organizer routes require a bearer token from an account with `role = organiz
 |---|---|---|
 | GET | `/api/organizer/dashboard` | Get organizer dashboard summary. |
 | GET | `/api/organizer/events` | List organizer-owned events with filter and pagination support. |
+| GET | `/api/organizer/events/:id` | Get detail of an organizer-owned event. |
 | POST | `/api/organizer/events` | Create an event owned by the organizer. |
 | PUT | `/api/organizer/events/:id` | Update an organizer-owned event. |
 | DELETE | `/api/organizer/events/:id` | Soft-cancel an organizer-owned event. |
 | GET | `/api/organizer/events/:id/participants` | List active participants of an organizer-owned event. |
+| DELETE | `/api/organizer/events/:id/participants/:userId` | Remove a joined participant from an organizer-owned event. |
 | GET | `/api/organizer/profile` | Get organizer profile. |
 | PUT | `/api/organizer/profile` | Update organizer profile. |
+| PUT | `/api/organizer/profile/password` | Change organizer password. |
 | GET | `/api/organizer/clubs` | List organizer club memberships. |
+| GET | `/api/organizer/clubs/:id/members` | List members of a club managed by the organizer. |
+| POST | `/api/organizer/clubs/:id/members` | Add a club member or update member role in a managed club. |
+| DELETE | `/api/organizer/clubs/:id/members/:userId` | Remove a member from a managed club. |
 
 ### Organizer Event Query Params
 
@@ -262,6 +294,29 @@ search, keyword, category, date, status, sort, organizer_id, club_id, page, limi
   "profile_image": "https://example.com/organizer.jpg"
 }
 ```
+
+### Organizer Change Password Body
+
+```json
+{
+  "current_password": "OldPassword123!",
+  "new_password": "NewPassword123!"
+}
+```
+
+### Organizer Save Club Member Body
+
+```json
+{
+  "user_id": 12,
+  "member_role": "manager"
+}
+```
+
+Notes:
+
+- organizer must already be a `manager` of that club
+- backend prevents removing or demoting the last remaining manager
 
 ## Admin Routes
 

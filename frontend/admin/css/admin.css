@@ -85,8 +85,7 @@ button {
 }
 
 .sidebar {
-  position: sticky;
-  top: 0;
+  position: relative;
   align-self: start;
   min-height: 100vh;
   padding: 1.25rem;
@@ -103,7 +102,7 @@ button {
   background: var(--sidebar-bg);
   color: var(--sidebar-text);
   box-shadow: 0 30px 60px rgba(8, 18, 22, 0.28);
-  overflow-y: auto;
+  overflow-y: hidden;
   overscroll-behavior: contain;
 }
 
@@ -273,8 +272,7 @@ button {
 }
 
 #navbar-root {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 20;
   padding: 1.25rem 1.5rem 0;
 }
@@ -716,6 +714,25 @@ td {
 }
 
 .badge-warning {
+  background: rgba(196, 133, 31, 0.16);
+  color: #93630f;
+}
+
+.status-active,
+.status-approved,
+.status-published {
+  background: rgba(42, 122, 87, 0.14);
+  color: #246a4c;
+}
+
+.status-cancelled,
+.status-rejected {
+  background: rgba(187, 79, 79, 0.14);
+  color: #9d3d3d;
+}
+
+.status-draft,
+.status-pending {
   background: rgba(196, 133, 31, 0.16);
   color: #93630f;
 }

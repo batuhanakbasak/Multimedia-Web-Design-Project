@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clubs | IBU Connect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/global.css" />
+    <link rel="stylesheet" href="../assets/css/student.css" />
+  </head>
+  <body class="student-portal">
+    <div class="student-shell">
+      <aside class="student-sidebar" data-student-sidebar></aside>
+
+      <div class="student-main">
+        <header class="student-topbar" data-student-topbar></header>
+
+        <main class="student-content">
+          <section class="student-hero">
+            <div class="student-hero__content">
+              <p class="eyebrow">Clubs</p>
+              <h1>Explore active clubs around campus.</h1>
+              <p>
+                Browse club descriptions, see how active they are, and open any club to view its
+                managers and events.
+              </p>
+            </div>
+          </section>
+
+          <section class="card-grid" data-clubs-grid></section>
+        </main>
+      </div>
+    </div>
+
+    <script src="./js/runtime-config.js"></script>
+    <script type="module" src="../assets/js/student/clubs.js"></script>
+  </body>
+</html>

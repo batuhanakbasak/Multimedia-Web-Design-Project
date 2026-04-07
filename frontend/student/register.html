@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Register | IBU Connect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/global.css" />
+    <link rel="stylesheet" href="../assets/css/student.css" />
+  </head>
+  <body class="student-auth-page">
+    <main class="student-auth-shell">
+      <section class="student-auth-showcase">
+        <div class="student-auth-copy">
+          <p class="eyebrow">New Student Account</p>
+          <h1>Create your place inside IBU Connect.</h1>
+          <p>
+            Register once, then browse clubs, join events, and manage your profile across the
+            platform.
+          </p>
+        </div>
+
+        <div class="student-auth-points">
+          <article class="student-auth-point">
+            <strong>Simple registration</strong>
+            <span>Start with your full name, email address, and a secure password.</span>
+          </article>
+          <article class="student-auth-point">
+            <strong>One student panel</strong>
+            <span>Everything you need lives in one responsive dashboard after sign in.</span>
+          </article>
+          <article class="student-auth-point">
+            <strong>Backend connected</strong>
+            <span>Your form is wired to the existing student registration API.</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="student-auth-card">
+        <div class="student-auth-header">
+          <p class="eyebrow">Student Register</p>
+          <h2>Create account</h2>
+          <p>Complete the form below to access the student side.</p>
+        </div>
+
+        <div class="inline-message" data-register-message hidden></div>
+
+        <form class="student-auth-form" data-register-form>
+          <label>
+            <span>Full name</span>
+            <input type="text" name="full_name" placeholder="Student One" required />
+          </label>
+
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" placeholder="student1@example.com" required />
+          </label>
+
+          <div class="student-auth-form-row">
+            <label>
+              <span>Password</span>
+              <input
+                type="password"
+                name="password"
+                placeholder="At least 8 characters"
+                minlength="8"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Confirm password</span>
+              <input
+                type="password"
+                name="confirm_password"
+                placeholder="Repeat your password"
+                minlength="8"
+                required
+              />
+            </label>
+          </div>
+
+          <button type="submit" class="button button-block">Create Student Account</button>
+        </form>
+
+        <div class="student-auth-footnote">
+          <span>Already registered? <a href="./login.html">Go to login</a></span>
+        </div>
+      </section>
+    </main>
+
+    <script src="./js/runtime-config.js"></script>
+    <script type="module" src="../assets/js/student/register.js"></script>
+  </body>
+</html>

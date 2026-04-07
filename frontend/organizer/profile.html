@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organizer Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../admin/css/admin.css" />
+  <style>
+      .profile-card { background: rgba(255,255,255,0.8); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+      .profile-avatar { width: 100px; height: 100px; border-radius: 50%; background: var(--text-main); color: white; display: flex; justify-content: center; align-items: center; font-size: 36px; font-weight: bold; }
+      .profile-info { text-align: center; }
+      .profile-name { font-size: 24px; font-family: 'Space Grotesk', sans-serif; margin-bottom: 0.5rem; }
+      .profile-role { color: var(--text-main); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; margin-bottom:1.5rem; }
+      .form-field { display: flex; flex-direction: column; gap: 0.5rem; color:var(--ink-soft); font-weight:600; text-align:left; width:100%; }
+      .form-field input { padding: 0.85rem; border: 1px solid var(--border); border-radius: 12px; background: rgba(255, 255, 255, 0.9); width:100%; font-family: inherit;}
+      .form-field input:focus { outline: none; border-color: var(--text-main); box-shadow: 0 0 0 4px rgba(23, 36, 43, 0.12); }
+  </style>
+</head>
+<body data-page="profile">
+  <div class="admin-shell">
+    <aside class="sidebar" id="sidebar-root"></aside>
+    <div class="admin-main">
+      <header id="navbar-root"></header>
+      <main class="page-content">
+        <section class="page-banner">
+          <div>
+            <p class="eyebrow">Settings</p>
+            <h3>Organizer Profile</h3>
+          </div>
+        </section>
+
+        <section class="content-grid two-column">
+           <article class="profile-card">
+               <div id="avatar" class="profile-avatar">O</div>
+               <div class="profile-info" style="width:100%;">
+                   <div id="name" class="profile-name">Organizer Name</div>
+                   <div id="email" style="color: var(--text-soft); margin-bottom:1rem;">email@ibu.edu.ba</div>
+                   <div class="profile-role">Event Organizer</div>
+
+                   <form id="profileForm" style="display:flex; flex-direction:column; gap:1rem; width:100%;">
+                       <div id="profileAlert" style="display:none; padding:10px; border-radius:8px;"></div>
+                       <div class="form-field">
+                           <label>Full Name</label>
+                           <input type="text" name="full_name" required />
+                       </div>
+                       <button type="submit" class="button button-block" style="background:var(--text-main);color:white;">Update Profile</button>
+                   </form>
+               </div>
+           </article>
+
+           <article class="profile-card" style="justify-content: flex-start;">
+               <div style="width:100%;">
+                   <h3 style="font-family:'Space Grotesk'; margin: 0 0 1.5rem 0;">Change Password</h3>
+                   <form id="passwordForm" style="display:flex; flex-direction:column; gap:1rem; width:100%;">
+                       <div id="passAlert" style="display:none; padding:10px; border-radius:8px;"></div>
+                       <div class="form-field">
+                           <label>Current Password</label>
+                           <input type="password" name="current_password" required />
+                       </div>
+                       <div class="form-field">
+                           <label>New Password</label>
+                           <input type="password" name="new_password" required />
+                       </div>
+                       <button type="submit" class="button button-block" style="background:var(--text-main);color:white;">Change Password</button>
+                   </form>
+               </div>
+           </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="./js/runtime-config.js"></script>
+  <script type="module">
+    import { requireAuth, renderSidebar, renderNavbar, escapeHtml } from './js/app.js';
+    import { apiRequest } from './js/api.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const auth = requireAuth();
+      renderSidebar('profile');
+      renderNavbar('My Profile');
+
+      try {
+        const response = await apiRequest('/organizer/profile');
+        const profile = response.data || auth;
+
+        document.getElementById('name').textContent = escapeHtml(profile.full_name || 'Organizer');
+        document.getElementById('email').textContent = escapeHtml(profile.email || '');
+        if (profile.full_name) {
+             document.getElementById('avatar').textContent = profile.full_name.substring(0, 2).toUpperCase();
+        }
+        document.getElementById('profileForm').full_name.value = profile.full_name || '';
+
+      } catch (e) {
+        console.error("Profile load failed", e);
+      }
+
+      // Handle Profile Update
+      document.getElementById('profileForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const alert = document.getElementById('profileAlert');
+          try {
+             await apiRequest('/organizer/profile', {
+                 method: 'PUT',
+                 body: {
+                     full_name: e.target.full_name.value,
+                     profile_image: null // Add image if needed
+                 }
+             });
+             alert.textContent = "Profile updated successfully!";
+             alert.style.display = "block";
+             alert.style.color = "green";
+             setTimeout(() => window.location.reload(), 1000);
+          } catch(err) {
+             alert.textContent = err.message;
+             alert.style.display = "block";
+             alert.style.color = "red";
+          }
+      });
+
+      // Handle Password Change
+      document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const alert = document.getElementById('passAlert');
+          try {
+             await apiRequest('/organizer/profile/password', {
+                 method: 'PUT',
+                 body: {
+                     current_password: e.target.current_password.value,
+                     new_password: e.target.new_password.value
+                 }
+             });
+             alert.textContent = "Password changed successfully!";
+             alert.style.display = "block";
+             alert.style.color = "green";
+             e.target.reset();
+          } catch(err) {
+             alert.textContent = err.message;
+             alert.style.display = "block";
+             alert.style.color = "red";
+          }
+      });
+    });
+  </script>
+</body>
+</html>

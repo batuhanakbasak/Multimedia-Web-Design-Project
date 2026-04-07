@@ -9,6 +9,7 @@ const {
   positiveIdParam,
   eventFilterValidators,
   updateProfileValidator,
+  changePasswordValidator,
   validateRequest,
 } = require('../utils/validators');
 
@@ -28,6 +29,10 @@ router.post('/favorites/:eventId', positiveIdParam('eventId'), validateRequest, 
 router.delete('/favorites/:eventId', positiveIdParam('eventId'), validateRequest, favoritesController.removeFavorite);
 router.get('/profile', studentController.getProfile);
 router.put('/profile', updateProfileValidator, validateRequest, studentController.updateProfile);
+router.put('/profile/password', changePasswordValidator, validateRequest, studentController.changePassword);
+router.post('/profile/password', changePasswordValidator, validateRequest, studentController.changePassword);
+router.put('/password', changePasswordValidator, validateRequest, studentController.changePassword);
+router.post('/password', changePasswordValidator, validateRequest, studentController.changePassword);
 router.get('/clubs', studentController.listClubs);
 router.get('/clubs/:id', positiveIdParam('id'), validateRequest, studentController.getClubById);
 

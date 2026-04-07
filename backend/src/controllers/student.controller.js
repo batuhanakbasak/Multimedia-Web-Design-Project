@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt');
+
 const { query } = require('../config/db');
 const asyncHandler = require('../utils/async-handler');
 const AppError = require('../utils/errors');
@@ -5,6 +7,8 @@ const { successResponse } = require('../utils/response');
 const { buildUpdateFields } = require('../utils/helpers');
 const { getPaginatedEvents, getEventDetail } = require('../utils/event-query');
 const clubsController = require('./clubs.controller');
+
+const SALT_ROUNDS = Number.parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10);
 
 const getDashboard = asyncHandler(async (req, res) => {
   const userId = req.user.id;
@@ -87,6 +91,7 @@ const listEvents = asyncHandler(async (req, res) => {
   const result = await getPaginatedEvents(query, req.query, {
     defaultStatus: 'active',
     upcomingOnly: !req.query.status,
+    currentUserId: req.user.id,
   });
 
   return successResponse(res, {
@@ -100,6 +105,7 @@ const searchEvents = asyncHandler(async (req, res) => {
   const result = await getPaginatedEvents(query, req.query, {
     defaultStatus: 'active',
     upcomingOnly: !req.query.status,
+    currentUserId: req.user.id,
   });
 
   return successResponse(res, {
@@ -158,6 +164,51 @@ const updateProfile = asyncHandler(async (req, res) => {
   });
 });
 
+const changePassword = asyncHandler(async (req, res) => {
+  const result = await query(
+    `
+      SELECT id, password_hash
+      FROM users
+      WHERE id = $1
+    `,
+    [req.user.id]
+  );
+
+  const user = result.rows[0];
+
+  if (!user) {
+    throw new AppError(404, 'User not found');
+  }
+
+  const isCurrentPasswordValid = await bcrypt.compare(
+    req.body.current_password,
+    user.password_hash
+  );
+
+  if (!isCurrentPasswordValid) {
+    throw new AppError(401, 'Current password is incorrect');
+  }
+
+  const passwordHash = await bcrypt.hash(req.body.new_password, SALT_ROUNDS);
+
+  await query(
+    `
+      UPDATE users
+      SET password_hash = $1,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+    `,
+    [passwordHash, req.user.id]
+  );
+
+  return successResponse(res, {
+    message: 'Student password updated successfully',
+    data: {
+      password_changed: true,
+    },
+  });
+});
+
 module.exports = {
   getDashboard,
   listEvents,
@@ -165,6 +216,7 @@ module.exports = {
   getEventById,
   getProfile,
   updateProfile,
+  changePassword,
   listClubs: clubsController.listClubs,
   getClubById: clubsController.getClubById,
 };

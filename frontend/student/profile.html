@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile | IBU Connect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/global.css" />
+    <link rel="stylesheet" href="../assets/css/student.css" />
+  </head>
+  <body class="student-portal">
+    <div class="student-shell">
+      <aside class="student-sidebar" data-student-sidebar></aside>
+
+      <div class="student-main">
+        <header class="student-topbar" data-student-topbar></header>
+
+        <main class="student-content">
+          <section class="student-hero">
+            <div class="student-hero__content">
+              <p class="eyebrow">Account</p>
+              <h1>Manage your student profile.</h1>
+              <p>
+                Update your name and profile image while keeping your student email read-only and in
+                sync with the backend.
+              </p>
+            </div>
+          </section>
+
+          <section class="profile-layout">
+            <aside class="profile-preview">
+              <div class="profile-preview__avatar" data-profile-avatar>ST</div>
+              <div class="profile-preview__meta">
+                <h2 data-profile-name>Student</h2>
+                <p data-profile-email>student@example.com</p>
+                <span class="badge" data-profile-summary>No profile image yet</span>
+              </div>
+            </aside>
+
+            <div class="stack-grid">
+              <section class="student-panel">
+                <div class="student-panel__head">
+                  <div>
+                    <p class="eyebrow">Edit profile</p>
+                    <h2>Profile information</h2>
+                    <p>Only the fields supported by the backend are editable here.</p>
+                  </div>
+                </div>
+
+                <div class="inline-message" data-profile-message hidden></div>
+
+                <form class="profile-form" data-profile-form>
+                  <div class="stack-grid two-columns">
+                    <label>
+                      <span>Full name</span>
+                      <input type="text" name="full_name" required />
+                    </label>
+
+                    <label>
+                      <span>Email</span>
+                      <input type="email" name="email" readonly />
+                    </label>
+                  </div>
+
+                  <label>
+                    <span>Profile image URL</span>
+                    <input type="url" name="profile_image" placeholder="https://example.com/profile.jpg" />
+                  </label>
+
+                  <button type="submit" class="button">Save Changes</button>
+                </form>
+              </section>
+
+              <section class="student-panel">
+                <div class="student-panel__head">
+                  <div>
+                    <p class="eyebrow">Security</p>
+                    <h2>Change password</h2>
+                    <p>Use your current password first, then set a new secure password.</p>
+                  </div>
+                </div>
+
+                <div class="inline-message" data-password-message hidden></div>
+
+                <form class="profile-form" data-password-form>
+                  <label>
+                    <span>Current password</span>
+                    <input type="password" name="current_password" autocomplete="current-password" required />
+                  </label>
+
+                  <div class="stack-grid two-columns">
+                    <label>
+                      <span>New password</span>
+                      <input type="password" name="new_password" autocomplete="new-password" minlength="8" required />
+                    </label>
+
+                    <label>
+                      <span>Confirm new password</span>
+                      <input
+                        type="password"
+                        name="confirm_new_password"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required
+                      />
+                    </label>
+                  </div>
+
+                  <button type="submit" class="button-secondary">Change Password</button>
+                </form>
+              </section>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="./js/runtime-config.js"></script>
+    <script type="module" src="../assets/js/student/profile.js"></script>
+  </body>
+</html>
