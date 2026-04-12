@@ -107,8 +107,8 @@ export const apiRequest = async (path, options = {}) => {
   }
 
   if (!response.ok || payload?.success === false) {
-    // 401 Unauthorized - Token Expired or Invalid
-    if (response.status === 401) {
+    // Unauthenticated routes (auth: false) may return 401 for bad credentials — do not treat as session expiry.
+    if (response.status === 401 && auth) {
       localStorage.removeItem(ORGANIZER_TOKEN_KEY);
       localStorage.removeItem('organizer_profile');
       localStorage.removeItem('organizer_refresh_token');
