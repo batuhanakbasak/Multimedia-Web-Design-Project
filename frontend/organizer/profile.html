@@ -39,10 +39,10 @@
                    <div class="profile-role">Event Organizer</div>
 
                    <form id="profileForm" style="display:flex; flex-direction:column; gap:1rem; width:100%;">
-                       <div id="profileAlert" style="display:none; padding:10px; border-radius:8px;"></div>
+                       <div id="profileAlert" role="status" aria-live="polite" style="display:none; padding:10px; border-radius:8px;"></div>
                        <div class="form-field">
-                           <label>Full Name</label>
-                           <input type="text" name="full_name" required />
+                           <label for="profile-full-name">Full Name</label>
+                           <input id="profile-full-name" type="text" name="full_name" required />
                        </div>
                        <button type="submit" class="button button-block" style="background:var(--text-main);color:white;">Update Profile</button>
                    </form>
@@ -53,14 +53,14 @@
                <div style="width:100%;">
                    <h3 style="font-family:'Space Grotesk'; margin: 0 0 1.5rem 0;">Change Password</h3>
                    <form id="passwordForm" style="display:flex; flex-direction:column; gap:1rem; width:100%;">
-                       <div id="passAlert" style="display:none; padding:10px; border-radius:8px;"></div>
+                       <div id="passAlert" role="status" aria-live="polite" style="display:none; padding:10px; border-radius:8px;"></div>
                        <div class="form-field">
-                           <label>Current Password</label>
-                           <input type="password" name="current_password" required />
+                           <label for="profile-current-password">Current Password</label>
+                           <input id="profile-current-password" type="password" name="current_password" required />
                        </div>
                        <div class="form-field">
-                           <label>New Password</label>
-                           <input type="password" name="new_password" required />
+                           <label for="profile-new-password">New Password</label>
+                           <input id="profile-new-password" type="password" name="new_password" required />
                        </div>
                        <button type="submit" class="button button-block" style="background:var(--text-main);color:white;">Change Password</button>
                    </form>
@@ -71,6 +71,11 @@
     </div>
   </div>
 
+  <script
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous"></script>
+  <script src="../assets/js/jquery-extras.js"></script>
   <script src="./js/runtime-config.js"></script>
   <script type="module">
     import { requireAuth, renderSidebar, renderNavbar, escapeHtml } from './js/app.js';

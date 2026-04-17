@@ -85,6 +85,8 @@ export const setInlineMessage = (element, message, type = 'info') => {
     return;
   }
 
+  element.setAttribute('role', 'status');
+  element.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
   element.hidden = false;
   element.className = `inline-message is-${type}`;
   element.textContent = message;
@@ -97,6 +99,8 @@ const getToastStack = () => {
     container = document.createElement('div');
     container.className = 'toast-stack';
     container.setAttribute('data-toast-stack', 'true');
+    container.setAttribute('aria-live', 'polite');
+    container.setAttribute('aria-atomic', 'true');
     document.body.appendChild(container);
   }
 
@@ -106,6 +110,7 @@ const getToastStack = () => {
 export const showToast = (message, type = 'info') => {
   const toast = document.createElement('div');
   toast.className = `toast is-${type}`;
+  toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
   toast.textContent = message;
 
   getToastStack().appendChild(toast);
@@ -173,7 +178,7 @@ export const mountStudentShell = ({ activePage, title, subtitle }) => {
         <nav class="student-nav" aria-label="Student navigation">
           ${NAV_ITEMS.map(
             (item) => `
-              <a href="${item.href}" class="${item.key === activePage ? 'is-active' : ''}">
+              <a href="${item.href}" class="${item.key === activePage ? 'is-active' : ''}" ${item.key === activePage ? 'aria-current="page"' : ''}>
                 <span>${escapeHtml(item.label)}</span>
                 <span aria-hidden="true">&rsaquo;</span>
               </a>
@@ -227,6 +232,12 @@ export const mountStudentShell = ({ activePage, title, subtitle }) => {
   }
 
   ensureSidebarOverlay();
+  if (!document.body.dataset.studentEscBound) {
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeSidebar();
+    });
+    document.body.dataset.studentEscBound = 'true';
+  }
 };
 
 export const createMediaMarkup = (label, imageUrl, modifier = 'event-card__media') => {

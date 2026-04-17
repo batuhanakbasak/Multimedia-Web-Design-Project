@@ -56,6 +56,11 @@
     </div>
   </div>
 
+  <script
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous"></script>
+  <script src="../assets/js/jquery-extras.js"></script>
   <script src="./js/runtime-config.js"></script>
   <script type="module">
     import { requireAuth, renderSidebar, renderNavbar, escapeHtml, formatDate } from './js/app.js';
@@ -69,18 +74,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const eventId = urlParams.get('id');
 
-      if (!eventId) {
-          document.getElementById('eventTitle').textContent = "Invalid Event";
-          document.getElementById('participants-body').innerHTML = `<tr><td colspan="4"><div class="empty-inline">No event ID provided. Please return to dashboard.</div></td></tr>`;
-          return;
-      }
-
-      try {
-        const response = await apiRequest(`/organizer/events/${eventId}/participants`);
-        const participants = response.data || [];
-        
-        document.getElementById('eventTitle').textContent = `Participating Students`;
-        
+      const renderParticipants = (participants) => {
         const tbody = document.getElementById('participants-body');
         if (!participants || participants.length === 0) {
             tbody.innerHTML = `<tr><td colspan="4"><div class="empty-inline">No one has registered for this event yet.</div></td></tr>`;
@@ -98,22 +92,36 @@
           </tr>
         `).join('');
 
-        // Attach listeners to remove participant buttons
         document.querySelectorAll('.remove-participant-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const userId = e.target.getAttribute('data-userid');
-                if(confirm("Are you sure you want to remove this participant from the event?")) {
-                     try {
-                         await apiRequest(`/organizer/events/${eventId}/participants/${userId}`, { method: 'DELETE' });
-                         window.location.reload();
-                     } catch(err) {
-                         alert(err.message);
-                     }
-                }
-            });
+          btn.addEventListener('click', async (e) => {
+            const userId = e.target.getAttribute('data-userid');
+            if (confirm('Are you sure you want to remove this participant from the event?')) {
+              try {
+                await apiRequest(`/organizer/events/${eventId}/participants/${userId}`, { method: 'DELETE' });
+                renderParticipants(participants.filter((p) => String(p.id || p.user_id) !== String(userId)));
+              } catch (err) {
+                alert(err.message);
+              }
+            }
+          });
         });
+      };
+
+      if (!eventId) {
+          document.getElementById('eventTitle').textContent = "Invalid Event";
+          document.getElementById('participants-body').innerHTML = `<tr><td colspan="4"><div class="empty-inline">No event ID provided. Please return to dashboard.</div></td></tr>`;
+          return;
+      }
+
+      try {
+        const response = await apiRequest(`/organizer/events/${eventId}/participants`);
+        const participants = response.data || [];
+        
+        document.getElementById('eventTitle').textContent = `Participating Students`;
+        
+        renderParticipants(participants);
       } catch (err) {
-         document.getElementById('participants-body').innerHTML = `<tr><td colspan="3"><div class="empty-inline error" style="color:red;">Error loading participants: ${escapeHtml(err.message)}</div></td></tr>`;
+         document.getElementById('participants-body').innerHTML = `<tr><td colspan="4"><div class="empty-inline error" style="color:red;">Error loading participants: ${escapeHtml(err.message)}</div></td></tr>`;
       }
     });
   </script>

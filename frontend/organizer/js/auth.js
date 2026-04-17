@@ -1,6 +1,7 @@
 import { ORGANIZER_TOKEN_KEY, apiRequest } from './api.js';
 
 const ORGANIZER_PROFILE_KEY = 'organizer_profile';
+const ORGANIZER_REFRESH_TOKEN_KEY = 'organizer_refresh_token';
 
 export const getOrganizerToken = () => localStorage.getItem(ORGANIZER_TOKEN_KEY);
 
@@ -23,6 +24,7 @@ export const saveOrganizerSession = ({ token, organizer }) => {
 export const clearOrganizerSession = () => {
   localStorage.removeItem(ORGANIZER_TOKEN_KEY);
   localStorage.removeItem(ORGANIZER_PROFILE_KEY);
+  localStorage.removeItem(ORGANIZER_REFRESH_TOKEN_KEY);
 };
 
 export const redirectToLogin = (reason = '') => {
@@ -32,8 +34,26 @@ export const redirectToLogin = (reason = '') => {
 };
 
 export const logoutOrganizer = () => {
-  clearOrganizerSession();
-  redirectToLogin('signed-out');
+  const refreshToken = localStorage.getItem(ORGANIZER_REFRESH_TOKEN_KEY);
+  const performLogout = async () => {
+    try {
+      if (refreshToken) {
+        await apiRequest('/auth/logout', {
+          method: 'POST',
+          body: { refresh_token: refreshToken },
+        });
+      } else {
+        await apiRequest('/auth/logout-all', { method: 'POST' });
+      }
+    } catch (error) {
+      console.warn('Organizer logout request failed:', error.message);
+    } finally {
+      clearOrganizerSession();
+      redirectToLogin('signed-out');
+    }
+  };
+
+  performLogout();
 };
 
 const renderLoginMessage = (message, type = 'error') => {
@@ -82,6 +102,12 @@ const initializeLoginPage = () => {
         token: response.data?.access_token || response.data?.token || response.access_token || response.token,
         organizer: response.data?.user || response.data?.organizer || response.user || {email: email, full_name: 'Organizer'},
       });
+      const refreshToken = response.data?.refresh_token || response.refresh_token;
+      if (refreshToken) {
+        localStorage.setItem(ORGANIZER_REFRESH_TOKEN_KEY, refreshToken);
+      } else {
+        localStorage.removeItem(ORGANIZER_REFRESH_TOKEN_KEY);
+      }
       window.location.href = './dashboard.html';
     } catch (error) {
       renderLoginMessage(error.message || 'Login failed.');

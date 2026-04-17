@@ -34,12 +34,27 @@ const developmentOrigins =
       ];
 
 const allowedOrigins = new Set([...configuredOrigins, ...developmentOrigins]);
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction && configuredOrigins.length === 0) {
+  throw new Error('CORS_ORIGIN must be configured in production');
+}
+
+// Pages opened as file:// send Origin: "null". Browsers block API calls unless the API allows it.
+const allowNullOrigin =
+  !isProduction ||
+  String(process.env.CORS_ALLOW_NULL_ORIGIN || '').toLowerCase() === 'true';
 
 app.set('trust proxy', true);
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.size === 0 || allowedOrigins.has(origin)) {
+      if (!origin || allowedOrigins.has(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      if (allowNullOrigin && origin === 'null') {
         callback(null, true);
         return;
       }

@@ -77,6 +77,11 @@
     </div>
   </div>
 
+  <script
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous"></script>
+  <script src="../assets/js/jquery-extras.js"></script>
   <script src="./js/runtime-config.js"></script>
   <script type="module">
     import { requireAuth, renderSidebar, renderNavbar, escapeHtml, formatDate } from './js/app.js';
@@ -97,47 +102,61 @@
         if (!Array.isArray(events)) {
           events = stats.upcoming_events || stats.events || [];
         }
-        
-        // Update Stats
-        document.getElementById('stat-total').textContent = stats.total_events || 0;
-        document.getElementById('stat-active').textContent = stats.active_events || 0;
-        document.getElementById('stat-cancelled').textContent = stats.cancelled_events || 0;
-        document.getElementById('stat-participants').textContent = stats.total_participants || 0;
-
         const tbody = document.getElementById('events-body');
-        if (!events || events.length === 0) {
+        const updateStats = () => {
+          const total = events.length;
+          const active = events.filter((ev) => (ev.status || '').toLowerCase() === 'active').length;
+          const cancelled = events.filter((ev) => (ev.status || '').toLowerCase() === 'cancelled').length;
+          const participants = events.reduce((sum, ev) => sum + Number(ev.participants_count || 0), 0);
+          document.getElementById('stat-total').textContent = stats.total_events ?? total;
+          document.getElementById('stat-active').textContent = stats.active_events ?? active;
+          document.getElementById('stat-cancelled').textContent = stats.cancelled_events ?? cancelled;
+          document.getElementById('stat-participants').textContent = stats.total_participants ?? participants;
+        };
+
+        const bindCancelButtons = () => {
+          document.querySelectorAll('.cancel-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const evId = Number(e.target.getAttribute('data-id'));
+              if (confirm('Are you sure you want to cancel this event?')) {
+                try {
+                  await apiRequest(`/organizer/events/${evId}`, { method: 'DELETE' });
+                  events = events.map((ev) => (ev.id === evId ? { ...ev, status: 'cancelled' } : ev));
+                  stats.active_events = Math.max(0, Number(stats.active_events || 0) - 1);
+                  stats.cancelled_events = Number(stats.cancelled_events || 0) + 1;
+                  renderEvents();
+                } catch (err) {
+                  alert(err.message);
+                }
+              }
+            });
+          });
+        };
+
+        const renderEvents = () => {
+          updateStats();
+          if (!events || events.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6"><div class="empty-inline">You haven't created any events yet.</div></td></tr>`;
             return;
-        }
+          }
 
-        tbody.innerHTML = events.map(ev => `
-          <tr>
-            <td data-label="Event Title"><strong>${escapeHtml(ev.title)}</strong></td>
-            <td data-label="Date">${formatDate(ev.event_date)}</td>
-            <td data-label="Location">${escapeHtml(ev.location)}</td>
-            <td data-label="Quota">${ev.quota || 0}</td>
-            <td data-label="Status"><span class="badge status-${(ev.status||'').toLowerCase()}">${escapeHtml(ev.status)}</span></td>
-            <td data-label="Actions">
-                <a href="participants.html?id=${ev.id}" class="button button-small" style="background:transparent;border:1px solid var(--text-main);color:var(--text-main); margin-right: 5px;">Participants</a>
-                ${ev.status !== 'cancelled' ? `<button class="button button-small cancel-btn" data-id="${ev.id}" style="background:transparent;border:1px solid #bb4f4f;color:#bb4f4f;">Cancel</button>` : ''}
-            </td>
-          </tr>
-        `).join('');
-      
-        // Attach listeners to cancel buttons
-        document.querySelectorAll('.cancel-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const evId = e.target.getAttribute('data-id');
-                if(confirm("Are you sure you want to cancel this event?")) {
-                     try {
-                         await apiRequest(`/organizer/events/${evId}`, { method: 'DELETE' });
-                         window.location.reload();
-                     } catch(err) {
-                         alert(err.message);
-                     }
-                }
-            });
-        });
+          tbody.innerHTML = events.map(ev => `
+            <tr>
+              <td data-label="Event Title"><strong>${escapeHtml(ev.title)}</strong></td>
+              <td data-label="Date">${formatDate(ev.event_date)}</td>
+              <td data-label="Location">${escapeHtml(ev.location)}</td>
+              <td data-label="Quota">${ev.quota || 0}</td>
+              <td data-label="Status"><span class="badge status-${(ev.status||'').toLowerCase()}">${escapeHtml(ev.status)}</span></td>
+              <td data-label="Actions">
+                  <a href="participants.html?id=${ev.id}" class="button button-small" style="background:transparent;border:1px solid var(--text-main);color:var(--text-main); margin-right: 5px;">Participants</a>
+                  ${ev.status !== 'cancelled' ? `<button class="button button-small cancel-btn" data-id="${ev.id}" style="background:transparent;border:1px solid #bb4f4f;color:#bb4f4f;">Cancel</button>` : ''}
+              </td>
+            </tr>
+          `).join('');
+          bindCancelButtons();
+        };
+
+        renderEvents();
       } catch (err) {
          document.getElementById('events-body').innerHTML = `<tr><td colspan="6"><div class="empty-inline error" style="color:red;">Error loading events: ${escapeHtml(err.message)}</div></td></tr>`;
       }

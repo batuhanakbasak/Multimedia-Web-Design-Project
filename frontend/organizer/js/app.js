@@ -18,6 +18,9 @@ const setupSidebarInteractions = () => {
     overlay?.addEventListener('click', closeSidebar);
     closeBtn?.addEventListener('click', closeSidebar);
     openBtn?.addEventListener('click', openSidebar);
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeSidebar();
+    });
     window.addEventListener('resize', () => {
         if (window.innerWidth > 960) closeSidebar();
     });
@@ -67,7 +70,7 @@ export const renderSidebar = (activeNav) => {
                 </div>
             </div>
             <nav class="sidebar-nav">
-                ${links.map(l => `<a href="${l.href}" class="${activeNav === l.key ? 'active' : ''}"><span>${l.label}</span></a>`).join('')}
+                ${links.map(l => `<a href="${l.href}" class="${activeNav === l.key ? 'active' : ''}" ${activeNav === l.key ? 'aria-current="page"' : ''}><span>${l.label}</span></a>`).join('')}
             </nav>
             <div class="sidebar-footer">
                 <button type="button" class="button button-block sidebar-logout" id="logoutBtn">Log Out</button>

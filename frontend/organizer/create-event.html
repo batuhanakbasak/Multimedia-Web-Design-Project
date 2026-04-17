@@ -37,28 +37,28 @@
 
             <div style="padding: 2rem;">
               <form id="createEventForm">
-                 <div id="formAlert" style="padding:1rem; margin-bottom:1rem; border-radius:12px; display:none; font-weight:600;"></div>
+                 <div id="formAlert" role="status" aria-live="polite" style="padding:1rem; margin-bottom:1rem; border-radius:12px; display:none; font-weight:600;"></div>
                  
                  <div class="form-grid">
                      <div class="form-field full-width">
-                         <label>Event Title</label>
-                         <input type="text" name="title" required placeholder="e.g. AI & Web Design Summit" />
+                         <label for="event-title">Event Title</label>
+                         <input id="event-title" type="text" name="title" required placeholder="e.g. AI & Web Design Summit" />
                      </div>
                      <div class="form-field full-width">
-                         <label>Description</label>
-                         <textarea name="description" required rows="4" placeholder="What is this event about?"></textarea>
+                         <label for="event-description">Description</label>
+                         <textarea id="event-description" name="description" required rows="4" placeholder="What is this event about?"></textarea>
                      </div>
                      <div class="form-field">
-                         <label>Date and Time</label>
-                         <input type="datetime-local" name="event_date" required />
+                         <label for="event-date">Date and Time</label>
+                         <input id="event-date" type="datetime-local" name="event_date" required />
                      </div>
                      <div class="form-field">
-                         <label>Location / Venue</label>
-                         <input type="text" name="location" required placeholder="e.g. Main Auditorium" />
+                         <label for="event-location">Location / Venue</label>
+                         <input id="event-location" type="text" name="location" required placeholder="e.g. Main Auditorium" />
                      </div>
                      <div class="form-field">
-                         <label>Category</label>
-                         <select name="category" required>
+                         <label for="event-category">Category</label>
+                         <select id="event-category" name="category" required>
                              <option value="seminar">Seminar</option>
                              <option value="workshop">Workshop</option>
                              <option value="social">Social</option>
@@ -66,18 +66,18 @@
                          </select>
                      </div>
                       <div class="form-field">
-                          <label>Club Association (Optional)</label>
+                          <label for="clubSelect">Club Association (Optional)</label>
                           <select name="club_id" id="clubSelect">
                               <option value="">No Club (Personal Event)</option>
                           </select>
                       </div>
                       <div class="form-field">
-                          <label>Participant Quota</label>
-                          <input type="number" name="quota" required min="1" placeholder="Max capacity" />
+                          <label for="event-quota">Participant Quota</label>
+                          <input id="event-quota" type="number" name="quota" required min="1" placeholder="Max capacity" />
                       </div>
                       <div class="form-field full-width">
-                          <label>Event Image URL</label>
-                          <input type="url" name="image_url" placeholder="https://example.com/image.jpg" />
+                          <label for="event-image-url">Event Image URL</label>
+                          <input id="event-image-url" type="url" name="image_url" placeholder="https://example.com/image.jpg" />
                       </div>
                  </div>
                  
@@ -92,6 +92,11 @@
     </div>
   </div>
 
+  <script
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous"></script>
+  <script src="../assets/js/jquery-extras.js"></script>
   <script src="./js/runtime-config.js"></script>
   <script type="module">
     import { requireAuth, renderSidebar, renderNavbar } from './js/app.js';
