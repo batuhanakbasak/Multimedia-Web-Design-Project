@@ -1,3 +1,4 @@
+// app scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 
 import { getOrganizerToken, getOrganizerProfile, logoutOrganizer } from './auth.js';
 import { apiRequest } from './api.js';

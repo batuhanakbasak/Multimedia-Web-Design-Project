@@ -1,3 +1,4 @@
+// modal scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 let currentOnClose = null;
 
 const getModalRoot = () => document.querySelector('#modal-root');

@@ -1,3 +1,4 @@
+// auth scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 import { ORGANIZER_TOKEN_KEY, apiRequest } from './api.js';
 
 const ORGANIZER_PROFILE_KEY = 'organizer_profile';

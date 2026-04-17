@@ -1,3 +1,4 @@
+// auth scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 export const STUDENT_TOKEN_KEY = 'student_token';
 export const STUDENT_PROFILE_KEY = 'student_profile';
 

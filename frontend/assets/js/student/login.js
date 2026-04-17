@@ -1,3 +1,4 @@
+// login scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 import { apiRequest } from '../common/api.js';
 import { saveStudentSessionFromPayload } from '../common/auth.js';
 import { redirectIfStudentAlreadyLoggedIn } from '../common/guards.js';

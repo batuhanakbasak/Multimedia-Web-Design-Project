@@ -1,3 +1,4 @@
+// users scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 import { apiRequest, serializeQuery } from './api.js';
 import { initializeAdminPage, showToast } from './guards.js';
 import { escapeHtml, formatDateOnly, formatDateTime, getActiveBadgeClass, getQueryId, getRoleBadgeClass, renderPagination } from './helpers.js';

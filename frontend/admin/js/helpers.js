@@ -1,3 +1,4 @@
+// helpers scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 export const escapeHtml = (value = '') =>
   String(value)
     .replaceAll('&', '&amp;')

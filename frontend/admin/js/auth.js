@@ -1,3 +1,4 @@
+// auth scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 import { ADMIN_TOKEN_KEY, apiRequest } from './api.js';
 
 const ADMIN_PROFILE_KEY = 'admin_profile';

@@ -1,3 +1,4 @@
+// utils scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 import { getStudentProfile, logoutStudent } from './auth.js';
 
 const NAV_ITEMS = [

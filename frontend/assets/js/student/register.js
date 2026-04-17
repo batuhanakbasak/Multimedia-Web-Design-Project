@@ -1,3 +1,4 @@
+// register scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 import { apiRequest } from '../common/api.js';
 import { redirectIfStudentAlreadyLoggedIn } from '../common/guards.js';
 import { setInlineMessage } from '../common/utils.js';

@@ -1,3 +1,4 @@
+/* student stilleri: bu dosya ilgili arayuzun gorunumu icin CSS kurallarini icerir. */
 body.student-auth-page {
   display: grid;
   place-items: center;
