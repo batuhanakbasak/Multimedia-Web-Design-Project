@@ -1,5 +1,6 @@
 // api scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 const normalizeBaseUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
+const LOCAL_API_BASE_URL = 'http://localhost:3000/api';
 const getCurrentOriginLabel = () =>
   window.location.origin && window.location.origin !== 'null'
     ? window.location.origin
@@ -23,12 +24,20 @@ const resolveApiBaseUrl = () => {
   const { protocol, hostname, origin } = window.location;
   const isHttpPage = protocol === 'http:' || protocol === 'https:';
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+  const publicApiBaseUrl =
+    !isHttpPage || isLocalhost || !hostname || hostname === 'null'
+      ? ''
+      : hostname.startsWith('api.')
+        ? `https://${hostname}/api`
+        : hostname.startsWith('www.')
+          ? `https://api.${hostname.slice(4)}/api`
+          : `https://api.${hostname}/api`;
 
-  if (isHttpPage && !isLocalhost) {
+  if (isHttpPage && isLocalhost && origin && origin !== 'null') {
     return `${origin}/api`;
   }
 
-  return 'http://94.55.180.77:3000/api';
+  return publicApiBaseUrl || LOCAL_API_BASE_URL;
 };
 
 export const API_BASE_URL = resolveApiBaseUrl();
@@ -89,8 +98,8 @@ export const apiRequest = async (path, options = {}) => {
     const currentOrigin = getCurrentOriginLabel();
     const isFileOrigin = currentOrigin === 'file://';
     const hint = isFileOrigin
-      ? 'Open the frontend through a local static server such as http://localhost:5500/organizer/organizer-login.html.'
-      : `Allow ${currentOrigin} in backend CORS settings and confirm that ${API_BASE_URL} is reachable.`;
+      ? 'Open the frontend through http://localhost:3000/organizer/organizer-login.html.'
+      : `Confirm that ${API_BASE_URL} is reachable from ${currentOrigin}.`;
 
     const requestError = new Error(`Unable to reach the organizer API. ${hint}`);
     requestError.status = 0;

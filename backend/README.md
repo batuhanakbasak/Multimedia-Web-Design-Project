@@ -79,22 +79,23 @@ JWT_REFRESH_SECRET=change_this_refresh_secret
 JWT_ACCESS_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
 BCRYPT_SALT_ROUNDS=10
-CORS_ORIGIN=http://94.55.180.77
+CORS_ORIGIN=https://www.example.com,https://example.com
+CORS_ALLOW_NULL_ORIGIN=false
 ```
 
 ## CORS Rule
 
-`CORS_ORIGIN` must contain the public frontend origin that will open the admin panel.
-In the current deployment plan, the frontend is opened from `http://94.55.180.77`.
+`CORS_ORIGIN` must contain every public frontend origin that will open the admin or
+organizer panel.
 
 Examples:
 
-- Frontend served from server IP:
-  `CORS_ORIGIN=http://94.55.180.77`
-- Frontend served from a custom domain:
-  `CORS_ORIGIN=https://admin.your-domain.com`
+- Frontend served from the main site:
+  `CORS_ORIGIN=https://www.example.com`
+- Frontend served from the apex domain:
+  `CORS_ORIGIN=https://example.com`
 - Multiple allowed frontend origins:
-  `CORS_ORIGIN=http://94.55.180.77,https://admin.your-domain.com`
+  `CORS_ORIGIN=https://www.example.com,https://example.com`
 
 If your frontend is served from a different port, include that exact origin with the port number.
 
@@ -208,16 +209,17 @@ Safety rules:
 
 ## Frontend Connection Logic
 
-The admin frontend is currently configured to call:
+The frontend now resolves the API like this:
 
-`http://94.55.180.77:3000/api`
+- local development on `localhost`: `http://localhost:3000/api`
+- production hosts: `https://api.<your-domain>/api`
 
-That value lives in:
+Those defaults live in:
 
 - `frontend/admin/js/runtime-config.js`
 
-If the server IP or API port changes later, update that file and make sure `CORS_ORIGIN`
-matches the real frontend origin.
+If the production API or frontend domain changes later, update that file group and make sure
+`CORS_ORIGIN` matches the real frontend origin.
 
 ## Server Test Flow
 
@@ -232,8 +234,10 @@ matches the real frontend origin.
 6. Start backend:
    `npm run dev`
 7. Confirm the API is reachable:
-   `http://94.55.180.77:3000/api/health`
-8. Serve `frontend/admin` from the same server IP
+   `http://localhost:3000/api/health`
+8. Confirm the public API is reachable:
+   `https://api.<your-domain>/api/health`
+9. Serve the frontend from your public site host
 9. Open the admin panel in the browser and log in
 
 ## Demo Seed

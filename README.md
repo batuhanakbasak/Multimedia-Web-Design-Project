@@ -30,11 +30,13 @@ copy .env.example .env
 
 - backend port: `3000`
 - backend host: `0.0.0.0`
-- public server IP: `94.55.180.77`
-- default frontend API target: `http://94.55.180.77:3000/api`
+- production frontend origins: configure your public site origins in `CORS_ORIGIN`
+- production API target: `https://api.<your-domain>/api`
 
-The frontend is now configured to call the public server directly through
-`frontend/admin/js/runtime-config.js`.
+Frontend runtime config now uses:
+
+- local development: `http://localhost:3000/api`
+- production: the matching `api.` subdomain for the current public host
 
 ## Quick Start
 
@@ -48,7 +50,7 @@ The frontend is now configured to call the public server directly through
 5. Start the backend:
    `npm start`
 6. Publish or serve `frontend/admin` on your server
-7. Open the admin login page from the public server
+7. Open the admin login page from your public frontend host
 
 Demo admin account from `sample-queries.sql`:
 

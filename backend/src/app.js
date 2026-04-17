@@ -1,5 +1,6 @@
 require('./config/env');
 
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 
@@ -14,6 +15,7 @@ const favoritesRoutes = require('./routes/favorites.routes');
 const { notFoundHandler, errorHandler } = require('./middleware/error.middleware');
 
 const app = express();
+const frontendRoot = path.resolve(__dirname, '../../frontend');
 
 const configuredOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',')
@@ -85,6 +87,24 @@ app.use('/api/clubs', clubsRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/participants', participantsRoutes);
 app.use('/api/favorites', favoritesRoutes);
+
+app.get('/', (req, res) => {
+  res.redirect('/student/login.html');
+});
+
+app.get(['/admin', '/admin/'], (req, res) => {
+  res.sendFile(path.join(frontendRoot, 'admin/login.html'));
+});
+
+app.get(['/student', '/student/'], (req, res) => {
+  res.sendFile(path.join(frontendRoot, 'student/login.html'));
+});
+
+app.get(['/organizer', '/organizer/'], (req, res) => {
+  res.sendFile(path.join(frontendRoot, 'organizer/organizer-login.html'));
+});
+
+app.use(express.static(frontendRoot));
 
 app.use(notFoundHandler);
 app.use(errorHandler);

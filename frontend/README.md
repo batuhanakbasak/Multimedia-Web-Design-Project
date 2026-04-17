@@ -37,13 +37,14 @@ frontend/
 
 ## API Connection Logic
 
-The frontend is currently configured to use the public backend directly.
+The frontend is configured with separate local and production API targets.
 
-Default API target:
+Default targets:
 
-`http://94.55.180.77:3000/api`
+- local development: `http://localhost:3000/api`
+- production: `https://api.<your-domain>/api`
 
-This value is defined in:
+These values are defined in:
 
 `frontend/admin/js/runtime-config.js`
 
@@ -51,25 +52,26 @@ This value is defined in:
 
 ### Current deployment target
 
-- frontend public host: `http://94.55.180.77`
-- backend API: `http://94.55.180.77:3000/api`
+- frontend public hosts: your production site origins
+- backend API: `https://api.<your-domain>/api`
 
-If the backend IP or port changes later, update:
+If the production API domain changes later, update:
 
 ```js
 // frontend/admin/js/runtime-config.js
-window.ADMIN_APP_CONFIG = {
-  apiBaseUrl: 'http://94.55.180.77:3000/api',
-};
+(function () {
+  // localhost pages use http://localhost:3000/api
+  // public pages use the matching api. subdomain
+})();
 ```
 
 And on the backend:
 
 ```env
-CORS_ORIGIN=http://94.55.180.77
+CORS_ORIGIN=https://www.example.com,https://example.com
 ```
 
-If you later move to a domain, change both values together.
+If you later move to a different domain, change both values together.
 
 ## Server Testing
 
@@ -92,13 +94,15 @@ npm run dev
 Health check:
 
 ```text
-http://94.55.180.77:3000/api/health
+http://localhost:3000/api/health
+https://api.<your-domain>/api/health
 ```
 
 Then open the frontend from the server, for example:
 
 ```text
-http://94.55.180.77/admin/login.html
+http://localhost:3000/admin/login.html
+https://www.<your-domain>/admin/login.html
 ```
 
 ## Login Test
