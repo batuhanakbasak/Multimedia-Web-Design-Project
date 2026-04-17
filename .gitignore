@@ -1,1 +1,12 @@
 cloudflared.deb
+
+# Local environment files
+backend/.env
+mobile/.env
+mobile/.env.local
+
+# Expo / Node local artifacts
+mobile/.expo/
+mobile/node_modules/
+mobile/dist/
+mobile/web-build/

@@ -1,4 +1,9 @@
-export const API_BASE_URL = 'http://94.55.180.77:3000/api';
+const configuredApiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
+
+export const API_BASE_URL =
+  configuredApiBaseUrl && configuredApiBaseUrl.length > 0
+    ? configuredApiBaseUrl
+    : 'https://api.batuhanakbasak.com/api';
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_LIST_LIMIT = 12;

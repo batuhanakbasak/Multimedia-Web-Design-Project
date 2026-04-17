@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.gadsum.mobile"
+      "bundleIdentifier": "com.gadsum.mobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -33,6 +36,11 @@
       "expo-secure-store",
       "expo-font",
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5c186f0a-f78e-4662-8d66-3b12ec6ea22b"
+      }
+    }
   }
 }
