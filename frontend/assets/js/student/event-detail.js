@@ -1,3 +1,4 @@
+// event-detail scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 import { apiRequest } from '../common/api.js';
 import { requireStudentAuth } from '../common/guards.js';
 import {

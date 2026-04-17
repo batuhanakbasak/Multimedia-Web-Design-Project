@@ -1,3 +1,4 @@
+// api scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 const normalizeBaseUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
 const getCurrentOriginLabel = () =>
   window.location.origin && window.location.origin !== 'null'

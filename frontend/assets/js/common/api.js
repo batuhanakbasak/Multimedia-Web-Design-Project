@@ -1,3 +1,4 @@
+// api scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 import { clearStudentSession, getStudentToken, redirectToStudentLogin } from './auth.js';
 
 const normalizeBaseUrl = (value) => String(value || '').trim().replace(/\/+$/, '');

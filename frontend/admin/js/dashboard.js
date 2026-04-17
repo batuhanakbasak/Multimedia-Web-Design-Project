@@ -1,3 +1,4 @@
+// dashboard scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 import { apiRequest } from './api.js';
 import { initializeAdminPage, showToast } from './guards.js';
 import { escapeHtml, formatDateOnly, formatDateTime, getEventStatusBadgeClass, getRoleBadgeClass } from './helpers.js';

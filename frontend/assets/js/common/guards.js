@@ -1,3 +1,4 @@
+// guards scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 import {
   clearStudentSession,
   getStudentProfile,

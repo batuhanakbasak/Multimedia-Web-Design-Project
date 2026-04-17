@@ -1,3 +1,4 @@
+// navbar scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 const greetingByHour = (date = new Date()) => {
   const hour = date.getHours();
 

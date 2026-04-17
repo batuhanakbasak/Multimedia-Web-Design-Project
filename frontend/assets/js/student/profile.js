@@ -1,3 +1,4 @@
+// profile scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 import { apiRequest } from '../common/api.js';
 import { updateStoredStudentProfile } from '../common/auth.js';
 import { requireStudentAuth } from '../common/guards.js';

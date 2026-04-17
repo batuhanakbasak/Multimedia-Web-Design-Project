@@ -1,3 +1,4 @@
+// sidebar scripti: bu dosya sayfanin davranislarini ve is kurallarini yonetir.
 const links = [
   { key: 'dashboard', label: 'Dashboard', href: './dashboard.html' },
   { key: 'users', label: 'Users', href: './users.html' },
